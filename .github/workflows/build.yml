@@ -15,7 +15,7 @@ on:
         required: false
         default: ""
       factory_ref:
-        description: "Ref of the factory repo to read prompts from. Keep equal to the ref in `uses:`."
+        description: "Ref of the factory repo to read prompts from (the v1 branch). Keep equal to the ref in `uses:`."
         type: string
         required: false
         default: v1

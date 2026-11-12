@@ -37,7 +37,7 @@ Merging closes the ticket and unblocks the ones behind it; a sweep every four ho
 **1. Publish this repository (once):**
 
 ```powershell
-./Deploy-Factory.ps1          # creates the public repo <you>/factory and tags v1
+./Deploy-Factory.ps1          # creates the public repo <you>/factory and its v1 release branch
 ```
 
 It must be public so that public and private projects can both call it. It contains no secrets.
@@ -111,7 +111,7 @@ Known behaviour: scheduled runs come only from the default branch, and GitHub pa
 
 ## Updating
 
-Edit this repository, then run `./Deploy-Factory.ps1` again. It moves the `v1` tag, and every connected project uses the new version on its next run. Third-party pieces are pinned in `build.yml` by commit or checksum; read the upstream diff before moving a pin.
+Edit this repository, then run `./Deploy-Factory.ps1` again. It pushes `main` and fast-forwards the `v1` branch, and every connected project uses the new version on its next run. `v1` is a branch, not a tag, so a release is an ordinary push; protect it in the repo's branch settings if anyone else gets write access. Third-party pieces are pinned in `build.yml` by commit or checksum; read the upstream diff before moving a pin.
 
 ## Where the parts come from
 

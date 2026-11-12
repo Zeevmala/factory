@@ -4,10 +4,11 @@
     Publishes this folder as the central factory repository, or updates it.
 
 .DESCRIPTION
-    First run: creates a public GitHub repository from this folder and tags it.
-    Later runs: commits local changes, pushes, and moves the tag, which updates
-    every connected repository at once, because their caller workflows reference
-    the tag.
+    First run: creates a public GitHub repository from this folder.
+    Every run: commits local changes, pushes main, and fast-forwards the release
+    branch (v1) to it. Connected repositories call the workflows at @v1, so moving
+    that branch updates all of them at once. A branch is used rather than a tag so
+    that a release is an ordinary push.
 
     The repository must be public so that public and private project
     repositories can both call its workflows. It holds no secrets.
@@ -19,7 +20,7 @@
     Repository name. Defaults to 'factory'.
 
 .PARAMETER Tag
-    Tag the caller workflows reference. Defaults to 'v1'.
+    Release branch the caller workflows reference. Defaults to 'v1'.
 
 .EXAMPLE
     ./Deploy-Factory.ps1
@@ -55,7 +56,7 @@ function Set-FactorySlug {
     <#
     .SYNOPSIS
         Rewrites the factory repository slug in the workflows and the caller
-        template, and the tag in the caller template. Returns the slug it replaced.
+        template, and the release ref in the caller template. Returns the slug it replaced.
     #>
     [OutputType([string])]
     param(
@@ -90,9 +91,9 @@ foreach ($tool in 'git', 'gh') {
 $root = $PSScriptRoot
 if (-not $Owner) { $Owner = (Invoke-Native gh @('api', 'user', '--jq', '.login') | Select-Object -First 1).Trim() }
 $slug = "$Owner/$Name"
-Write-Host "Publishing the factory as $slug (tag $Tag)" -ForegroundColor Cyan
+Write-Host "Publishing the factory as $slug (release branch $Tag)" -ForegroundColor Cyan
 
-if (-not $PSCmdlet.ShouldProcess($slug, 'commit, push and tag the factory repository')) { return }
+if (-not $PSCmdlet.ShouldProcess($slug, 'commit and push the factory repository')) { return }
 
 $previous = Set-FactorySlug -Root $root -Slug $slug -Tag $Tag
 if ($previous -ne $slug) { Write-Host "  ~ workflows now reference $slug (was $previous)" }
@@ -124,9 +125,8 @@ try {
         Write-Host '  + pushed to main'
     }
 
-    Invoke-Native git @('tag', '-f', $Tag) | Out-Null
-    Invoke-Native git @('push', '-q', '-f', 'origin', "refs/tags/$Tag") | Out-Null
-    Write-Host "  + tag $Tag now points at $(@(Invoke-Native git @('rev-parse', '--short', 'HEAD'))[0])"
+    Invoke-Native git @('push', '-q', 'origin', "HEAD:refs/heads/$Tag") | Out-Null
+    Write-Host "  + release branch $Tag now at $(@(Invoke-Native git @('rev-parse', '--short', 'HEAD'))[0])"
 }
 finally {
     Pop-Location
