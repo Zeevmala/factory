@@ -1,0 +1,179 @@
+name: review
+
+# Reusable. Fresh-context review of one PR: the reviewer gets the diff, the linked
+# ticket, the repo's checklist and designs. It can write one report file and nothing
+# else; its token cannot push, and it cannot approve or merge.
+
+on:
+  workflow_call:
+    inputs:
+      pr_number:
+        type: string
+        required: true
+      factory_ref:
+        type: string
+        required: false
+        default: v1
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN:
+        required: false
+      ANTHROPIC_API_KEY:
+        required: false
+
+permissions: {}
+
+env:
+  FACTORY_REPO: Zeevmala/factory
+  FACTORY_REF: ${{ inputs.factory_ref }}
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    concurrency:
+      group: factory-review-${{ github.repository }}-${{ inputs.pr_number }}
+      cancel-in-progress: true
+    steps:
+      - name: Resolve PR
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ inputs.pr_number }}
+        run: |
+          set -euo pipefail
+          [[ "$PR" =~ ^[0-9]+$ ]] || { echo "::error::Not a PR number: $PR"; exit 1; }
+          meta=$(gh pr view "$PR" --repo "$REPO" --json baseRefName,headRefName,headRefOid,isCrossRepository,state)
+          if [ "$(jq -r .isCrossRepository <<<"$meta")" = "true" ]; then echo "::error::Fork PRs are not reviewed."; exit 1; fi
+          if [ "$(jq -r .state <<<"$meta")" != "OPEN" ]; then echo "::error::PR #$PR is not open."; exit 1; fi
+          {
+            echo "number=$PR"
+            echo "base=$(jq -r .baseRefName <<<"$meta")"
+            echo "head=$(jq -r .headRefName <<<"$meta")"
+            echo "sha=$(jq -r .headRefOid <<<"$meta")"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Checkout PR head
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ steps.pr.outputs.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Build review context
+        id: ctx
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ steps.pr.outputs.number }}
+          BASE: ${{ steps.pr.outputs.base }}
+        run: |
+          set -euo pipefail
+          mkdir -p .factory-run
+          printf '%s\n' ".factory-run/" >> .git/info/exclude
+
+          # The prompt comes from the factory repo and the checklist from the base branch,
+          # so a PR cannot rewrite its own review.
+          git -c advice.detachedHead=false clone -q --depth 1 --branch "$FACTORY_REF" "https://github.com/$FACTORY_REPO.git" "$RUNNER_TEMP/factory-src"
+          cp "$RUNNER_TEMP/factory-src/prompts/review.md" .factory-run/prompt.md
+          git show "origin/$BASE:.factory/review-checklist.md" > .factory-run/checklist.md 2>/dev/null \
+            || echo "No project checklist." > .factory-run/checklist.md
+
+          git diff "origin/$BASE...HEAD" > .factory-run/diff.patch
+          git diff --stat "origin/$BASE...HEAD" > .factory-run/diffstat.txt
+
+          ticket=$(gh pr view "$PR" --repo "$REPO" --json body --jq '.body // ""' \
+            | grep -oiE '(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+#[0-9]+' | head -n 1 | grep -oE '[0-9]+' || true)
+          echo "ticket=$ticket" >> "$GITHUB_OUTPUT"
+          if [ -n "$ticket" ]; then
+            gh issue view "$ticket" --repo "$REPO" --json title,body \
+              --jq '"# Ticket #'"$ticket"': " + .title + "\n\n" + (.body // "")' > .factory-run/ticket.md
+          else
+            gh pr view "$PR" --repo "$REPO" --json title,body \
+              --jq '"# No linked ticket. PR description:\n\n## " + .title + "\n\n" + (.body // "")' > .factory-run/ticket.md
+          fi
+
+      - name: Review
+        id: claude
+        continue-on-error: true
+        uses: anthropics/claude-code-action@4fa93a88de49bbef68b10eb15aabedf28ca0e1ed # v1.0.271
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            You are an unattended reviewer run in this repository's software factory.
+            Read `.factory-run/prompt.md` for your instructions, then review the change described by the files in `.factory-run/`.
+          # The reviewer may write its report and nothing else.
+          settings: |
+            {
+              "permissions": {
+                "deny": [
+                  "Edit(./.github/**)",
+                  "Edit(./.factory/**)",
+                  "Read(.env)",
+                  "Read(.env.local)",
+                  "Read(.env.production)",
+                  "Read(*.pem)",
+                  "Read(**/secrets/**)"
+                ]
+              }
+            }
+          claude_args: |
+            --max-turns ${{ vars.FACTORY_REVIEW_MAX_TURNS || '40' }}
+            --model ${{ vars.FACTORY_REVIEW_MODEL || 'opus' }}
+            --allowedTools "Read,Glob,Grep,LS,Write,Bash(git diff:*),Bash(git log:*),Bash(git show:*)"
+
+      - name: Post verdict
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ steps.pr.outputs.number }}
+          HEAD_REF: ${{ steps.pr.outputs.head }}
+          SHA: ${{ steps.pr.outputs.sha }}
+          AUTO_REWORK: ${{ vars.FACTORY_AUTO_REWORK || 'false' }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          gh label create review-pass  --repo "$REPO" --color 0E8A16 --description "Factory review: no blocking findings" 2>/dev/null || true
+          gh label create review-block --repo "$REPO" --color B60205 --description "Factory review: blocking findings" 2>/dev/null || true
+
+          out="$RUNNER_TEMP/review-comment.md"
+          verdict="ERROR"
+          if [ -s .factory-run/review.md ]; then
+            first=$(head -n 5 .factory-run/review.md | grep -oE 'VERDICT: (PASS|BLOCK)' | head -n 1 || true)
+            case "$first" in
+              "VERDICT: PASS") verdict="PASS" ;;
+              "VERDICT: BLOCK") verdict="BLOCK" ;;
+            esac
+          fi
+
+          {
+            echo "<!-- factory-review -->"
+            echo "**Factory review of \`${SHA:0:7}\`: $verdict** ([log]($RUN_URL))"
+            echo
+            if [ "$verdict" = "ERROR" ]; then
+              echo "The reviewer produced no usable verdict. Treat this PR as unreviewed."
+            else
+              cat .factory-run/review.md
+            fi
+          } > "$out"
+          gh pr comment "$PR" --repo "$REPO" --body-file "$out"
+
+          case "$verdict" in
+            PASS)  gh pr edit "$PR" --repo "$REPO" --remove-label review-block 2>/dev/null || true
+                   gh pr edit "$PR" --repo "$REPO" --add-label review-pass ;;
+            BLOCK) gh pr edit "$PR" --repo "$REPO" --remove-label review-pass 2>/dev/null || true
+                   gh pr edit "$PR" --repo "$REPO" --add-label review-block ;;
+          esac
+
+          # Optional rework loop (off by default): send a blocked factory PR back to the queue.
+          # The build workflow's attempt cap bounds the loop; the next sweep picks it up.
+          if [ "$verdict" = "BLOCK" ] && [ "$AUTO_REWORK" = "true" ] && [[ "$HEAD_REF" =~ ^factory/issue-([0-9]+)$ ]]; then
+            issue="${BASH_REMATCH[1]}"
+            gh issue edit "$issue" --repo "$REPO" --remove-label in-review --add-label ready-for-agent || true
+          fi

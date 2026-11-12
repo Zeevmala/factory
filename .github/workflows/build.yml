@@ -1,0 +1,571 @@
+name: build
+
+# Reusable. One call = one ticket, in three jobs with separate tokens:
+#   pick     claims the next ready, unblocked issue            (issues: write)
+#   build    the agent builds it and the gate runs             (read-only token)
+#   publish  a clean runner scans the result, pushes, opens PR (write token, runs no project code)
+# The agent never holds a token that can write to the repository.
+
+on:
+  workflow_call:
+    inputs:
+      issue:
+        description: "Issue number to build. Empty = next ready ticket."
+        type: string
+        required: false
+        default: ""
+      factory_ref:
+        description: "Ref of the factory repo to read prompts from. Keep equal to the ref in `uses:`."
+        type: string
+        required: false
+        default: v1
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN:
+        required: false
+      ANTHROPIC_API_KEY:
+        required: false
+    outputs:
+      pr_number:
+        description: "PR opened or updated by this run, if any"
+        value: ${{ jobs.publish.outputs.pr_number }}
+      review:
+        description: "'true' when the PR passed the gate and should be reviewed"
+        value: ${{ jobs.publish.outputs.review }}
+
+permissions: {}
+
+env:
+  FACTORY_REPO: Zeevmala/factory
+  FACTORY_REF: ${{ inputs.factory_ref }}
+  REPO: ${{ github.repository }}
+  READY_LABEL: ready-for-agent
+  WIP_LABEL: agent-in-progress
+  REVIEW_LABEL: in-review
+  HUMAN_LABEL: ready-for-human
+  INFO_LABEL: needs-info
+  MAX_ATTEMPTS: ${{ vars.FACTORY_MAX_ATTEMPTS || '3' }}
+  MAX_FILE_MB: ${{ vars.FACTORY_MAX_FILE_MB || '5' }}
+  # Third-party pins. Skills are copied into the runner for the run, never committed.
+  TDD_REPO: https://github.com/mattpocock/skills.git
+  TDD_SHA: 4ae2317ddb22b046e26455e4f9c9b3aaaf62212d
+  SUPERPOWERS_REPO: https://github.com/obra/superpowers.git
+  SUPERPOWERS_SHA: 22f0b463e7a5e579904dd6211a520321035526f7
+  GITLEAKS_VERSION: 8.30.1
+  GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+
+jobs:
+  pick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    outputs:
+      issue: ${{ steps.pick.outputs.issue }}
+      attempt: ${{ steps.pick.outputs.attempt }}
+      default_branch: ${{ steps.pick.outputs.default_branch }}
+    steps:
+      - name: Pick and claim a ticket
+        id: pick
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_ISSUE: ${{ github.event_name == 'issues' && github.event.issue.number || '' }}
+          INPUT_ISSUE: ${{ inputs.issue }}
+        run: |
+          set -euo pipefail
+
+          echo "default_branch=$(gh api "repos/$REPO" --jq .default_branch)" >> "$GITHUB_OUTPUT"
+
+          gh label create "$READY_LABEL"  --repo "$REPO" --color 0E8A16 --description "Factory: ready to build" 2>/dev/null || true
+          gh label create "$WIP_LABEL"    --repo "$REPO" --color FBCA04 --description "Factory: a run is building this" 2>/dev/null || true
+          gh label create "$REVIEW_LABEL" --repo "$REPO" --color 1D76DB --description "Factory: PR open, waiting for review" 2>/dev/null || true
+          gh label create "$HUMAN_LABEL"  --repo "$REPO" --color D93F0B --description "Factory: needs a human" 2>/dev/null || true
+          gh label create "$INFO_LABEL"   --repo "$REPO" --color D876E3 --description "Factory: the run has a question" 2>/dev/null || true
+
+          # Open blockers: GitHub native issue dependencies first, then a "Blocked by" section in the body.
+          open_blockers() {
+            local n="$1" native refs ref count=0
+            native=$(gh api "repos/$REPO/issues/$n" --jq '.issue_dependencies_summary.blocked_by // 0' 2>/dev/null || echo 0)
+            if [ "$native" != "0" ]; then echo "$native"; return; fi
+            refs=$(gh issue view "$n" --repo "$REPO" --json body --jq '.body // ""' \
+              | awk 'tolower($0) ~ /^#+[[:space:]]*blocked by/ {on=1; next} /^#+[[:space:]]/ {on=0} on' \
+              | grep -oE '#[0-9]+' | tr -d '#' | sort -u || true)
+            for ref in $refs; do
+              if [ "$(gh issue view "$ref" --repo "$REPO" --json state --jq .state 2>/dev/null || echo CLOSED)" = "OPEN" ]; then
+                count=$((count + 1))
+              fi
+            done
+            echo "$count"
+          }
+
+          # Reconcile before dispatch. Builds are serialised per repo, so an open issue
+          # still labelled in-progress here belongs to a run that died or was cancelled.
+          for n in $(gh issue list --repo "$REPO" --state open --label "$WIP_LABEL" --limit 50 --json number --jq '.[].number'); do
+            echo "#$n: stale claim, returning to the queue"
+            gh issue edit "$n" --repo "$REPO" --remove-label "$WIP_LABEL" --add-label "$READY_LABEL" || true
+          done
+          for label in "$READY_LABEL" "$WIP_LABEL"; do
+            for n in $(gh issue list --repo "$REPO" --state closed --label "$label" --limit 50 --json number --jq '.[].number'); do
+              gh issue edit "$n" --repo "$REPO" --remove-label "$label" || true
+            done
+          done
+
+          if [ -n "${INPUT_ISSUE:-}" ]; then
+            candidates="$INPUT_ISSUE"
+          elif [ -n "${EVENT_ISSUE:-}" ]; then
+            candidates="$EVENT_ISSUE"
+          else
+            # Optional labels priority-1 .. priority-4 sort first; then oldest first.
+            candidates=$(gh issue list --repo "$REPO" --state open --label "$READY_LABEL" --limit 50 \
+              --json number,createdAt,labels --jq '
+                map(. + {prio: ([.labels[].name | select(test("^priority-[1-4]$")) | ltrimstr("priority-") | tonumber] | min // 9)})
+                | sort_by(.prio, .createdAt) | .[].number')
+          fi
+
+          pick=""
+          attempts=0
+          for n in $candidates; do
+            [[ "$n" =~ ^[0-9]+$ ]] || continue
+            ok=$(gh issue view "$n" --repo "$REPO" --json state,labels \
+              --jq "(.state == \"OPEN\") and ([.labels[].name] | index(\"$READY_LABEL\") != null)" 2>/dev/null || echo false)
+            if [ "$ok" != "true" ]; then echo "#$n: not open or not labelled $READY_LABEL, skipping"; continue; fi
+
+            blockers=$(open_blockers "$n")
+            if [ "$blockers" != "0" ]; then echo "#$n: $blockers open blocker(s), skipping"; continue; fi
+
+            attempts=$(gh api "repos/$REPO/issues/$n/comments" --paginate \
+              --jq '.[] | select(.body | contains("<!-- factory-run -->")) | .id' | wc -l | tr -d ' ')
+            if [ "$attempts" -ge "$MAX_ATTEMPTS" ]; then
+              gh issue edit "$n" --repo "$REPO" --remove-label "$READY_LABEL" --add-label "$HUMAN_LABEL"
+              gh issue comment "$n" --repo "$REPO" --body "Factory: $attempts runs used (cap $MAX_ATTEMPTS). Handing this ticket to a human."
+              continue
+            fi
+            pick="$n"
+            break
+          done
+
+          if [ -z "$pick" ]; then
+            echo "No ready, unblocked ticket. Nothing to do."
+            echo "issue=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          gh issue edit "$pick" --repo "$REPO" --remove-label "$READY_LABEL" --add-label "$WIP_LABEL"
+          {
+            echo "issue=$pick"
+            echo "attempt=$((attempts + 1))"
+          } >> "$GITHUB_OUTPUT"
+          echo "Claimed #$pick (attempt $((attempts + 1))/$MAX_ATTEMPTS)"
+
+  build:
+    needs: pick
+    if: needs.pick.outputs.issue != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    env:
+      ISSUE: ${{ needs.pick.outputs.issue }}
+      ATTEMPT: ${{ needs.pick.outputs.attempt }}
+      DEFAULT_BRANCH: ${{ needs.pick.outputs.default_branch }}
+      BRANCH: factory/issue-${{ needs.pick.outputs.issue }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Read toolchain versions
+        id: versions
+        run: |
+          set -euo pipefail
+          read_version() { if [ -f "$1" ]; then tr -d ' \r\n' < "$1" | grep -E '^[0-9][0-9.x]*$' || true; fi; }
+          echo "node=$(read_version .factory/node-version)" >> "$GITHUB_OUTPUT"
+          echo "python=$(read_version .factory/python-version)" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node
+        if: steps.versions.outputs.node != ''
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: ${{ steps.versions.outputs.node }}
+
+      - name: Set up Python
+        if: steps.versions.outputs.python != ''
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: ${{ steps.versions.outputs.python }}
+
+      - name: Prepare the run
+        id: prep
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Prompts come from the factory repo; the gate and tool list from this repo's default branch.
+          git -c advice.detachedHead=false clone -q --depth 1 --branch "$FACTORY_REF" "https://github.com/$FACTORY_REPO.git" "$RUNNER_TEMP/factory-src"
+          mkdir -p "$RUNNER_TEMP/factory"
+          for f in check.sh setup.sh allowed-tools.txt; do
+            git show "origin/$DEFAULT_BRANCH:.factory/$f" > "$RUNNER_TEMP/factory/$f" \
+              || { echo "::error::.factory/$f is missing on $DEFAULT_BRANCH. Run Add-FactoryRepo.ps1 and merge its PR."; exit 1; }
+          done
+
+          if git rev-parse --verify -q "origin/$BRANCH" >/dev/null; then
+            git checkout -q -B "$BRANCH" "origin/$BRANCH"
+            REWORK=yes
+          else
+            git checkout -q -b "$BRANCH" "origin/$DEFAULT_BRANCH"
+            REWORK=no
+          fi
+          echo "start_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+          # Run-only files: kept out of every commit.
+          mkdir -p .factory-run
+          printf '%s\n' ".factory-run/" >> .git/info/exclude
+          cp "$RUNNER_TEMP/factory-src/prompts/build.md" .factory-run/prompt.md
+
+          {
+            echo "# Ticket #$ISSUE"
+            echo
+            echo "Attempt $ATTEMPT of $MAX_ATTEMPTS. Earlier attempt on this branch: $REWORK."
+            echo
+            gh issue view "$ISSUE" --repo "$REPO" --json title,body --jq '"## " + .title + "\n\n" + (.body // "")'
+            echo
+            echo "## Comments from maintainers"
+            echo
+            gh api "repos/$REPO/issues/$ISSUE/comments" --paginate --jq '
+              .[]
+              | select(.author_association == "OWNER" or .author_association == "MEMBER" or .author_association == "COLLABORATOR")
+              | select(.body | contains("<!-- factory-") | not)
+              | "### " + .user.login + " at " + .created_at + "\n\n" + .body + "\n"'
+            echo
+            echo "## Previous factory run on this ticket (most recent)"
+            echo
+            gh api "repos/$REPO/issues/$ISSUE/comments" --paginate --jq '
+              [.[] | select(.body | contains("<!-- factory-run -->"))] | last | .body // "None."'
+          } > .factory-run/context.md
+
+          PR=$(gh pr list --repo "$REPO" --head "$BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$PR" ]; then
+            {
+              echo
+              echo "## Previous automated review of PR #$PR (most recent)"
+              echo
+              gh api "repos/$REPO/issues/$PR/comments" --paginate --jq '
+                [.[] | select(.body | contains("<!-- factory-review -->"))] | last | .body // "None."'
+            } >> .factory-run/context.md
+          fi
+
+          base='Read,Write,Edit,MultiEdit,Glob,Grep,LS,Skill,Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*)'
+          extra=$(grep -vE '^[[:space:]]*(#|$)' "$RUNNER_TEMP/factory/allowed-tools.txt" | tr -d '\r' | paste -sd, - || true)
+          echo "tools=$base${extra:+,$extra}" >> "$GITHUB_OUTPUT"
+
+      - name: Load pinned skills
+        run: |
+          set -uo pipefail
+          # load <repo> <sha> <path in repo> <skill name>
+          load() {
+            local repo="$1" sha="$2" path="$3" name="$4" src
+            if [ -d ".claude/skills/$name" ]; then echo "$name: the repo has its own, keeping it"; return 0; fi
+            src="$RUNNER_TEMP/skills-src/$sha"
+            if [ ! -d "$src/.git" ]; then
+              mkdir -p "$src"
+              if ! { git init -q "$src" \
+                && git -C "$src" fetch -q --depth 1 "$repo" "$sha" \
+                && git -C "$src" checkout -q FETCH_HEAD; }; then
+                echo "::warning::Could not fetch $repo at $sha"
+                rm -rf "$src"
+                return 0
+              fi
+            fi
+            if [ -f "$src/$path/SKILL.md" ]; then
+              mkdir -p .claude/skills
+              cp -r "$src/$path" ".claude/skills/$name"
+              printf '%s\n' ".claude/skills/$name/" >> .git/info/exclude
+              echo "$name: loaded at $sha"
+            else
+              echo "::warning::$path not found in $repo at $sha"
+            fi
+          }
+          load "$TDD_REPO" "$TDD_SHA" skills/engineering/tdd tdd
+          load "$SUPERPOWERS_REPO" "$SUPERPOWERS_SHA" skills/verification-before-completion verification-before-completion
+          load "$SUPERPOWERS_REPO" "$SUPERPOWERS_SHA" skills/systematic-debugging systematic-debugging
+          # The build prompt carries the same rules in short form, so a failed load degrades the run but does not break it.
+          exit 0
+
+      - name: Project setup
+        run: bash "$RUNNER_TEMP/factory/setup.sh"
+
+      - name: Implement the ticket
+        id: claude
+        continue-on-error: true
+        timeout-minutes: 40
+        uses: anthropics/claude-code-action@4fa93a88de49bbef68b10eb15aabedf28ca0e1ed # v1.0.271
+        env:
+          # Compatibility: asks the action to strip Anthropic, cloud and Actions secrets from the
+          # environment of commands the agent runs (npm, pytest, ...).
+          CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: "1"
+        with:
+          # Set exactly one of these two repository secrets.
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ github.token }} # read-only in this job
+          prompt: |
+            You are an unattended implementer run in this repository's software factory.
+            Read `.factory-run/prompt.md` for your instructions and `.factory-run/context.md` for the ticket, then do the work.
+          # Enforced by Claude Code itself, whatever the prompt or the ticket says. Deny wins over allow.
+          settings: |
+            {
+              "permissions": {
+                "deny": [
+                  "Edit(./.github/**)",
+                  "Edit(./.factory/**)",
+                  "Read(.env)",
+                  "Read(.env.local)",
+                  "Read(.env.production)",
+                  "Read(*.pem)",
+                  "Read(**/secrets/**)",
+                  "Edit(.env)",
+                  "Edit(.env.local)",
+                  "Edit(.env.production)"
+                ]
+              }
+            }
+          claude_args: |
+            --max-turns ${{ vars.FACTORY_BUILD_MAX_TURNS || '80' }}
+            --model ${{ vars.FACTORY_BUILD_MODEL || 'sonnet' }}
+            --allowedTools "${{ steps.prep.outputs.tools }}"
+
+      - name: Gate
+        id: gate
+        env:
+          START_SHA: ${{ steps.prep.outputs.start_sha }}
+        run: |
+          set -uo pipefail
+
+          # Tracked edits the run forgot to commit are kept; untracked files are only counted.
+          if ! git diff --quiet || ! git diff --cached --quiet; then
+            git add -u
+            git commit -q -m "factory: uncommitted edits left by the run" || true
+          fi
+          untracked=$(git ls-files --others --exclude-standard | wc -l | tr -d ' ')
+
+          # The run may not change the factory config or CI. Undo it if it did.
+          protected=false
+          if [ -n "$(git diff --name-only "origin/$DEFAULT_BRANCH...HEAD" -- .github .factory)" ]; then
+            protected=true
+            git restore --source="origin/$DEFAULT_BRANCH" --staged --worktree -- .github .factory
+            git commit -q -m "factory: revert changes to protected paths (.github, .factory)" || true
+          fi
+
+          ahead=$(git rev-list --count "origin/$DEFAULT_BRANCH..HEAD")
+          gate=none
+          if [ "$ahead" != "0" ]; then
+            # The gate script is the default branch's copy, and this job holds no write token.
+            if timeout 900 bash "$RUNNER_TEMP/factory/check.sh" > "$RUNNER_TEMP/gate.log" 2>&1; then gate=pass; else gate=fail; fi
+            cat "$RUNNER_TEMP/gate.log"
+          fi
+
+          out="$RUNNER_TEMP/out"
+          mkdir -p "$out"
+          {
+            echo "gate=$gate"
+            echo "protected=$protected"
+            echo "untracked=$untracked"
+          } > "$out/result.txt"
+          tail -n 60 "$RUNNER_TEMP/gate.log" 2>/dev/null | head -c 12000 > "$out/gate-tail.log" || true
+          if [ -s .factory-run/SUMMARY.md ]; then head -c 6000 .factory-run/SUMMARY.md > "$out/SUMMARY.md"; fi
+          if [ -s .factory-run/BLOCKED.md ]; then head -c 4000 .factory-run/BLOCKED.md > "$out/BLOCKED.md"; fi
+          if [ "$ahead" != "0" ]; then git bundle create "$out/work.bundle" "origin/$DEFAULT_BRANCH..$BRANCH"; fi
+          echo "gate=$gate ahead=$ahead protected=$protected untracked=$untracked"
+
+      - name: Hand the result to the publish job
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: factory-run
+          path: ${{ runner.temp }}/out
+          if-no-files-found: ignore
+          retention-days: 3
+
+  publish:
+    needs: [pick, build]
+    if: always() && needs.pick.outputs.issue != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      pr_number: ${{ steps.publish.outputs.pr_number }}
+      review: ${{ steps.publish.outputs.review }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ISSUE: ${{ needs.pick.outputs.issue }}
+      ATTEMPT: ${{ needs.pick.outputs.attempt }}
+      DEFAULT_BRANCH: ${{ needs.pick.outputs.default_branch }}
+      BRANCH: factory/issue-${{ needs.pick.outputs.issue }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Fetch the run's result
+        continue-on-error: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: factory-run
+          path: ${{ runner.temp }}/run
+
+      # Everything in the artifact came from the runner the agent used, so it is treated as
+      # data: values are pattern-checked, commits are inspected as git objects and never
+      # checked out or executed here.
+      - name: Scan, push and report
+        id: publish
+        run: |
+          set -euo pipefail
+          run="$RUNNER_TEMP/run"
+          {
+            echo "pr_number="
+            echo "review=false"
+          } >> "$GITHUB_OUTPUT"
+
+          val() { grep -E "^$1=[a-z0-9]{1,12}\$" "$run/result.txt" 2>/dev/null | head -n 1 | cut -d= -f2 || true; }
+          gate=$(val gate); protected=$(val protected); untracked=$(val untracked)
+
+          note="$RUNNER_TEMP/run-comment.md"
+          relabel() { gh issue edit "$ISSUE" --repo "$REPO" --remove-label "$WIP_LABEL" --add-label "$1"; }
+          retry_or_human() { if [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; then relabel "$READY_LABEL"; else relabel "$HUMAN_LABEL"; fi; }
+          finish() { gh issue comment "$ISSUE" --repo "$REPO" --body-file "$note"; }
+
+          {
+            echo "<!-- factory-run -->"
+            echo "**Factory run $ATTEMPT/$MAX_ATTEMPTS** ([log]($RUN_URL)): gate \`${gate:-no result}\`."
+            if [ "$protected" = "true" ]; then echo; echo "The run edited \`.github/\` or \`.factory/\`; those edits were reverted."; fi
+            if [ -n "$untracked" ] && [ "$untracked" != "0" ]; then echo; echo "$untracked untracked file(s) were left uncommitted and dropped."; fi
+          } > "$note"
+
+          # 1. The build job died before producing a result (timeout, setup failure, runner loss).
+          if [ -z "$gate" ]; then
+            { echo; echo "The build job ended without a result. The next sweep retries while attempts remain."; } >> "$note"
+            finish; retry_or_human; exit 0
+          fi
+
+          # 2. Inspect the commits on this clean runner.
+          tip=""; ahead=0; hold=""
+          if [ -s "$run/work.bundle" ]; then
+            git bundle verify -q "$run/work.bundle" 2>/dev/null
+            git fetch -q "$run/work.bundle" "+refs/heads/$BRANCH:refs/factory/incoming"
+            tip=$(git rev-parse refs/factory/incoming)
+            ahead=$(git rev-list --count "origin/$DEFAULT_BRANCH..$tip")
+
+            if [ -n "$(git diff --name-only "origin/$DEFAULT_BRANCH...$tip" -- .github .factory)" ]; then
+              hold="changes under .github/ or .factory/"
+            fi
+            big=$(git diff --name-only --diff-filter=AM "origin/$DEFAULT_BRANCH...$tip" | while IFS= read -r f; do
+              size=$(git cat-file -s "$tip:$f" 2>/dev/null || echo 0)
+              if [ "$size" -gt $((MAX_FILE_MB * 1024 * 1024)) ]; then echo "$f"; fi
+            done)
+            if [ -n "$big" ]; then hold="${hold:+$hold; }file(s) over ${MAX_FILE_MB} MB: $(echo "$big" | paste -sd' ' -)"; fi
+
+            gl="$RUNNER_TEMP/gitleaks"; mkdir -p "$gl"
+            if curl -sSfL --max-time 60 -o "$gl/gitleaks.tgz" \
+                 "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+               && echo "$GITLEAKS_SHA256  $gl/gitleaks.tgz" | sha256sum -c --quiet - \
+               && tar -xzf "$gl/gitleaks.tgz" -C "$gl" gitleaks; then
+              if ! "$gl/gitleaks" git --no-banner --redact --exit-code 1 \
+                   --log-opts="origin/$DEFAULT_BRANCH..$tip" --report-path "$gl/report.json" . >/dev/null 2>&1; then
+                hold="${hold:+$hold; }secret scan: $(jq 'length' "$gl/report.json" 2>/dev/null || echo "?") finding(s)"
+              fi
+            else
+              hold="${hold:+$hold; }secret scanner could not be downloaded or verified"
+            fi
+          fi
+
+          # A secret or a large binary on a pushed branch cannot be taken back. Fails closed.
+          if [ -n "$hold" ]; then
+            { echo; echo "The branch was **not pushed**: $hold. The work is discarded with the runner. Fix the ticket or the fixture that led to it, then re-apply \`$READY_LABEL\`."; } >> "$note"
+            finish; relabel "$HUMAN_LABEL"; exit 0
+          fi
+
+          if [ "$ahead" != "0" ]; then git push -q origin "$tip:refs/heads/$BRANCH"; fi
+
+          # 3. The run stopped with a question.
+          if [ -s "$run/BLOCKED.md" ]; then
+            { echo; echo "### The run needs an answer"; echo; cat "$run/BLOCKED.md"; echo; echo "Answer in a comment, then re-apply \`$READY_LABEL\`."; } >> "$note"
+            finish; relabel "$INFO_LABEL"; exit 0
+          fi
+
+          # 4. Nothing was produced.
+          if [ "$ahead" = "0" ]; then
+            { echo; echo "No changes were produced. Check the run log, sharpen the ticket, then re-apply \`$READY_LABEL\`."; } >> "$note"
+            finish; relabel "$HUMAN_LABEL"; exit 0
+          fi
+
+          # 5. There is work: open or update the PR. Evidence below is what the factory measured;
+          #    the run's own summary goes in a comment, where closing keywords have no effect.
+          title=$(gh issue view "$ISSUE" --repo "$REPO" --json title --jq .title)
+          body="$RUNNER_TEMP/pr-body.md"
+          {
+            echo "Closes #$ISSUE"
+            echo
+            echo "Built by an unattended factory run ([log]($RUN_URL)), attempt $ATTEMPT. A human merges this, never the factory."
+            echo
+            echo "## Gate evidence"
+            echo
+            echo "\`bash .factory/check.sh\` (default-branch copy): \`$gate\`. Secret scan and file-size cap: clean. Last lines of the gate:"
+            echo
+            echo '~~~~text'
+            tail -n 15 "$run/gate-tail.log" 2>/dev/null | grep -v '^~~~~' || true
+            echo '~~~~'
+          } > "$body"
+
+          PR=$(gh pr list --repo "$REPO" --head "$BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [ -z "$PR" ]; then
+            draft=()
+            if [ "$gate" != "pass" ]; then draft=(--draft); fi
+            url=$(gh pr create --repo "$REPO" --head "$BRANCH" --base "$DEFAULT_BRANCH" \
+              --title "$title (#$ISSUE)" --body-file "$body" "${draft[@]}")
+            PR="${url##*/}"
+          else
+            gh pr edit "$PR" --repo "$REPO" --body-file "$body"
+            if [ "$gate" = "pass" ]; then gh pr ready "$PR" --repo "$REPO" 2>/dev/null || true; fi
+          fi
+          echo "pr_number=$PR" >> "$GITHUB_OUTPUT"
+          { echo; echo "PR: #$PR"; } >> "$note"
+
+          if [ -s "$run/SUMMARY.md" ]; then
+            { echo "**What the run says it built** (its claim; the gate evidence is in the description)"; echo; cat "$run/SUMMARY.md"; } > "$RUNNER_TEMP/summary.md"
+            gh pr comment "$PR" --repo "$REPO" --body-file "$RUNNER_TEMP/summary.md"
+          fi
+
+          if [ "$gate" = "pass" ]; then
+            finish; relabel "$REVIEW_LABEL"
+            echo "review=true" >> "$GITHUB_OUTPUT"
+          else
+            {
+              echo
+              echo "<details><summary>Gate output (last 60 lines)</summary>"
+              echo
+              echo '~~~~text'
+              grep -v '^~~~~' "$run/gate-tail.log" 2>/dev/null || true
+              echo '~~~~'
+              echo
+              echo "</details>"
+            } >> "$note"
+            finish; retry_or_human
+          fi
+
+      - name: Release the claim if publishing broke
+        if: failure()
+        run: |
+          gh issue edit "$ISSUE" --repo "$REPO" --remove-label "$WIP_LABEL" --add-label "$HUMAN_LABEL" || true
+          gh issue comment "$ISSUE" --repo "$REPO" --body "<!-- factory-run -->
+          Factory run failed while publishing ([log]($RUN_URL)). Handing to a human." || true

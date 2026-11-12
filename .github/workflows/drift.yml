@@ -1,0 +1,109 @@
+name: drift
+
+# Reusable. Read-only comparison of the approved designs in docs/designs/ with the
+# code on the default branch. Keeps one issue labelled `design-drift` up to date and
+# closes it when nothing has drifted. You decide which side to change.
+
+on:
+  workflow_call:
+    inputs:
+      factory_ref:
+        type: string
+        required: false
+        default: v1
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN:
+        required: false
+      ANTHROPIC_API_KEY:
+        required: false
+
+permissions: {}
+
+env:
+  FACTORY_REPO: Zeevmala/factory
+  FACTORY_REF: ${{ inputs.factory_ref }}
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Anything to compare?
+        id: docs
+        run: |
+          set -euo pipefail
+          count=$(find docs/designs -maxdepth 1 -type f -name '*.md' ! -name 'SITEMAP.md' 2>/dev/null | wc -l | tr -d ' ')
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          mkdir -p .factory-run
+          git -c advice.detachedHead=false clone -q --depth 1 --branch "$FACTORY_REF" "https://github.com/$FACTORY_REPO.git" "$RUNNER_TEMP/factory-src"
+          cp "$RUNNER_TEMP/factory-src/prompts/drift.md" .factory-run/prompt.md
+
+      - name: Compare designs with code
+        if: steps.docs.outputs.count != '0'
+        continue-on-error: true
+        uses: anthropics/claude-code-action@4fa93a88de49bbef68b10eb15aabedf28ca0e1ed # v1.0.271
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            You are an unattended drift-report run in this repository's software factory.
+            Read `.factory-run/prompt.md` for your instructions, then do the comparison.
+          settings: |
+            {
+              "permissions": {
+                "deny": [
+                  "Read(.env)",
+                  "Read(.env.local)",
+                  "Read(.env.production)",
+                  "Read(*.pem)",
+                  "Read(**/secrets/**)"
+                ]
+              }
+            }
+          claude_args: |
+            --max-turns ${{ vars.FACTORY_REVIEW_MAX_TURNS || '40' }}
+            --model ${{ vars.FACTORY_REVIEW_MODEL || 'opus' }}
+            --allowedTools "Read,Glob,Grep,LS,Write,Bash(git log:*),Bash(git show:*)"
+
+      - name: Update the drift issue
+        if: steps.docs.outputs.count != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          gh label create design-drift --repo "$REPO" --color 5319E7 --description "Factory: designs and code disagree" 2>/dev/null || true
+          existing=$(gh issue list --repo "$REPO" --state open --label design-drift --limit 1 --json number --jq '.[0].number // empty')
+
+          if [ ! -s .factory-run/drift.md ]; then
+            echo "::warning::The drift run produced no report."
+            exit 0
+          fi
+
+          first=$(head -n 3 .factory-run/drift.md | grep -oE 'DRIFT: (NONE|FOUND)' | head -n 1 || true)
+          body="$RUNNER_TEMP/drift-body.md"
+          { tail -n +2 .factory-run/drift.md; echo; echo "_Updated by the weekly drift run ([log]($RUN_URL))._"; } > "$body"
+
+          if [ "$first" = "DRIFT: NONE" ]; then
+            if [ -n "$existing" ]; then
+              gh issue close "$existing" --repo "$REPO" --comment "No drift found in this week's run ([log]($RUN_URL))."
+            fi
+          elif [ "$first" = "DRIFT: FOUND" ]; then
+            if [ -n "$existing" ]; then
+              gh issue edit "$existing" --repo "$REPO" --body-file "$body"
+            else
+              gh issue create --repo "$REPO" --title "Design drift report" --label design-drift --body-file "$body"
+            fi
+          else
+            echo "::warning::The drift report has no verdict line; leaving the issue as it is."
+          fi

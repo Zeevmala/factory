@@ -1,0 +1,8 @@
+# Extra tools the implementer run may use, one per line.
+# These are Claude Code permission rules; keep the list to what the gate needs.
+Bash(python:*)
+Bash(python3:*)
+Bash(pytest:*)
+Bash(uv:*)
+Bash(ruff:*)
+Bash(mypy:*)

@@ -1,0 +1,5 @@
+# Extra tools the implementer run may use, one per line.
+# These are Claude Code permission rules; keep the list to what the gate needs.
+Bash(npm:*)
+Bash(npx:*)
+Bash(node:*)
