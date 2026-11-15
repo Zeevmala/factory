@@ -127,6 +127,27 @@ try {
 
     Invoke-Native git @('push', '-q', 'origin', "HEAD:refs/heads/$Tag") | Out-Null
     Write-Host "  + release branch $Tag now at $(@(Invoke-Native git @('rev-parse', '--short', 'HEAD'))[0])"
+
+    # The weekly curate workflow runs in this repository: it needs a credential
+    # and permission for Actions to open its pull request.
+    Invoke-Native gh @(
+        'api', '--method', 'PUT', "repos/$slug/actions/permissions/workflow",
+        '-f', 'default_workflow_permissions=read', '-F', 'can_approve_pull_request_reviews=true'
+    ) | Out-Null
+    $secretNames = 'CLAUDE_CODE_OAUTH_TOKEN', 'ANTHROPIC_API_KEY'
+    $present = @(Invoke-Native gh @('secret', 'list', '--repo', $slug, '--json', 'name', '--jq', '.[].name'))
+    if ($present | Where-Object { $secretNames -contains $_ }) {
+        Write-Host '  = curate credential already set'
+    }
+    elseif (-not [string]::IsNullOrWhiteSpace($env:CLAUDE_CODE_OAUTH_TOKEN)) {
+        # The value goes over stdin so it never appears on a command line.
+        $env:CLAUDE_CODE_OAUTH_TOKEN.Trim() | & gh secret set CLAUDE_CODE_OAUTH_TOKEN --repo $slug | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw "gh secret set CLAUDE_CODE_OAUTH_TOKEN failed for $slug." }
+        Write-Host '  + curate credential CLAUDE_CODE_OAUTH_TOKEN'
+    }
+    else {
+        Write-Host '  ! no credential for the weekly curate run: set $env:CLAUDE_CODE_OAUTH_TOKEN and run this again.' -ForegroundColor Yellow
+    }
 }
 finally {
     Pop-Location

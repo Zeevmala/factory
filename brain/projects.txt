@@ -1,0 +1,3 @@
+# Repositories connected to the factory, one owner/name per line.
+# Add-FactoryRepo.ps1 appends to this file; run Deploy-Factory.ps1 afterwards to publish it.
+# The weekly curate run reads each one's week. It can read public repositories only.

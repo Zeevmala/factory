@@ -2,18 +2,24 @@
 
 One central repository that builds tickets for all your projects. You approve designs and merge pull requests; unattended runs on GitHub's runners do the building and a first review in between. Each project holds one small caller workflow and its own gate script, so a fix here reaches every project at once.
 
+Every run reads a shared brain (`brain/`: facts, voice, principles, decisions, playbooks) and leaves what it learned in the project's `docs/brain/`. Once a week a curate run turns the week's lessons, failures, reviews and costs into a dated digest and updated playbooks, and opens a pull request for you to approve.
+
 ## Layout
 
 ```
 .github/workflows/   build.yml, review.yml, drift.yml   reusable workflows (all the logic)
-prompts/             build.md, review.md, drift.md      what each run is told
+                     curate.yml                         weekly loop; runs in this repo only
+prompts/             build.md, review.md, drift.md,     what each run is told
+                     curate.md
+brain/               facts, voice, principles,          shared context every run reads
+                     decisions, playbooks, digests
 profiles/            node/, python/                     starting gate files per stack
 caller/              files copied into each project
 Deploy-Factory.ps1   publish or update this repository
 Add-FactoryRepo.ps1  connect one project
 ```
 
-A connected project gets `.github/workflows/factory.yml` (the caller), `.factory/` (`check.sh`, `setup.sh`, `allowed-tools.txt`, `review-checklist.md`), `docs/designs/`, and a block in `CLAUDE.md`.
+A connected project gets `.github/workflows/factory.yml` (the caller), `.factory/` (`check.sh`, `setup.sh`, `allowed-tools.txt`, `review-checklist.md`), `docs/designs/`, `docs/brain/` (`DECISIONS.md`, `lessons/`), and a block in `CLAUDE.md`.
 
 ## How a ticket moves
 
@@ -30,6 +36,24 @@ label ready-for-agent ──▶ pick     claim the next unblocked ticket
 
 Merging closes the ticket and unblocks the ones behind it; a sweep every four hours picks them up. A weekly run compares `docs/designs/` with the code and keeps one `design-drift` issue current.
 
+## The brain and the loop
+
+```
+brain/ (this repo, main)  ──read by──▶  build and review runs  ──▶  PR adds docs/brain/lessons/<date>-issue-N.md
+        ▲                                                                       │ you merge
+        │ you merge                                                              ▼
+curate PR: digests/<week>.md + playbooks  ◀── Friday curate run reads every project's week:
+                                                lessons, run and review comments, your comments,
+                                                merged / rejected / to-human, cost per run
+```
+
+- **What runs read.** Build runs read `FACTS.md`, `PRINCIPLES.md`, `playbooks/build.md`, and `VOICE.md` before writing prose; reviewers read `PRINCIPLES.md`, `FACTS.md` and `playbooks/review.md`. Runs read `brain/` from `main`, so a merged brain change is live at once; prompts and workflows still release through `v1`.
+- **Facts file.** A run may state a fact about you or a project only if it is in `FACTS.md` or provable from the code. The reviewer blocks unsupported claims.
+- **Append-only, dated.** Lessons are one file each with the date in the name, so concurrent PRs never conflict. A build PR that edits or deletes an existing brain entry gets a warning in its description, and the reviewer blocks it.
+- **Cost per job.** Every run and review comment carries its cost (API-equivalent USD) and turn count, plus a machine-readable `<!-- factory-cost -->` line. The digest totals them per project and per merged ticket.
+- **Curate.** Fridays 06:37 UTC, or by hand from the Actions tab. The agent runs with a read-only token and may edit only `brain/playbooks/` and `brain/digests/`; a separate job applies the patch only if every path is a plain Markdown file under those two folders. Facts, voice, principles and decisions change only when you edit them. It reads public projects only; a private one shows up as unreadable in the digest.
+- **Private context stays out.** This repo is public. Customer data, private numbers and your personal notes go in a private repository that runs do not read.
+
 ## Rollout
 
 **0. Prerequisites (once):** PowerShell 7, `git`, `gh auth login`, Claude Code.
@@ -37,8 +61,11 @@ Merging closes the ticket and unblocks the ones behind it; a sweep every four ho
 **1. Publish this repository (once):**
 
 ```powershell
+$env:CLAUDE_CODE_OAUTH_TOKEN = Read-Host -MaskInput 'Token'   # from `claude setup-token`; used by the weekly curate run
 ./Deploy-Factory.ps1          # creates the public repo <you>/factory and its v1 release branch
 ```
+
+Then fill in the blanks in `brain/FACTS.md` and the examples in `brain/VOICE.md`, and correct anything in `brain/PRINCIPLES.md` that is not how you decide.
 
 It must be public so that public and private projects can both call it. It contains no secrets.
 
@@ -57,7 +84,7 @@ Personal accounts have no shared secrets, so the next step stores it in each pro
 ./Add-FactoryRepo.ps1 -RepoPath C:\dev\meet-me-halfway -Global -OpenPr   # -Global only the first time
 ```
 
-This detects the stack and app folder, copies the files, creates the labels, lets Actions open pull requests, stores the secret, and opens a pull request. Before merging it, edit `.factory/check.sh` until it runs the project's real checks and passes locally. That file defines "done".
+This detects the stack and app folder, copies the files, creates the labels, lets Actions open pull requests, stores the secret, adds the repo to `brain/projects.txt`, and opens a pull request. Run `./Deploy-Factory.ps1` afterwards so the curate run sees the new repo. Before merging it, edit `.factory/check.sh` until it runs the project's real checks and passes locally. That file defines "done".
 
 **4. First live run:** on the first project, label one small ticket `ready-for-agent` and read the Actions log end to end before labelling a second.
 
@@ -89,6 +116,7 @@ Then in Claude Code, once per project: `/mattpocock-skills:setup-matt-pocock-ski
 | `FACTORY_BUILD_MAX_TURNS` / `FACTORY_REVIEW_MAX_TURNS` | `80` / `40` | Turn caps |
 | `FACTORY_MAX_FILE_MB` | `5` | Largest file a run may add |
 | `FACTORY_AUTO_REWORK` | `false` | `true` sends a blocked factory PR back to the queue without you |
+| `FACTORY_CURATE_MODEL` / `FACTORY_CURATE_MAX_TURNS` | `opus` / `60` | Weekly curate run (set on this repo) |
 
 ## What protects your default branch
 
@@ -104,6 +132,8 @@ Limits: the secret scan matches known key formats, not every possible secret. Co
 ## Verified, and not
 
 Verified here: workflows pass `actionlint` (callers and reusable workflows together) and `shellcheck`. Every shell step ran against scratch repositories: ticket selection, context building, pinned-skill loading, the gate, bundle hand-off, and publishing in eight outcomes, including a forged bundle that changed a workflow, a planted secret, a 6 MB file, a dead build job and a tampered result file (all held or retried as intended). Both scripts ran under PowerShell 7.4 against stand-ins for `gh`, on a monorepo, a Python repo, a static site and a dirty tree.
+
+The brain and loop were checked the same way: the curate gather step against a scratch project (a lesson from this week collected, an old one skipped, a malformed `projects.txt` line and an unreadable repo skipped); the curate publish check against nine patches (accepted only the plain Markdown one under the allowed folders; rejected a symlink, binary, executable, rename, nested path, non-Markdown file, a forged edit to a prompt, and a `..` path); the brain fetch from `main` with fallback to `v1`; the append-only warning on five branches; cost parsing; and both PowerShell scripts under 7.4 against a stand-in `gh`.
 
 Not verified, because it needs GitHub: a live run. In particular, the cross-repository workflow call, the one-build-at-a-time lock on the caller job, the action running on a read-only token, and the deny rules inside the action. Step 4 is the test.
 
@@ -124,3 +154,4 @@ Edit this repository, then run `./Deploy-Factory.ps1` again. It pushes `main` an
 | Design and fresh-context review at your desk; drift report | [google/elephant-goldfish-model](https://github.com/google/elephant-goldfish-model) |
 | Read-only agent job with a separate publishing job | pattern from [github/gh-aw](https://github.com/github/gh-aw) |
 | Always / Ask first / Never block in `CLAUDE.md` | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) |
+| Shared brain, facts file, append-only dated entries, weekly playbook rewrite, cost per job | Greg Isenberg's "most AI-pilled company" list (items 1–9, 30, 38–41), adapted to a public repo |
