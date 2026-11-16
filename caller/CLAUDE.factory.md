@@ -10,9 +10,9 @@ This repo is built by a design-gated factory. Humans approve designs and merge p
 
 ### Brain
 Shared context lives in the factory repository's `brain/` (unattended runs get a copy in `.factory-run/brain/`); this project's own is `docs/brain/`.
-- Read `brain/FACTS.md`, `brain/PRINCIPLES.md` and the playbook for your role before any task, and `docs/brain/DECISIONS.md` and `docs/brain/lessons/` before changing this project.
+- Read `brain/FACTS.md`, `brain/PRINCIPLES.md`, `brain/STACK.md` and the playbook for your role before any task, and `docs/brain/DECISIONS.md` and `docs/brain/lessons/` before changing this project. Search the decisions and lessons for the ticket's key terms before you design anything.
 - Never overwrite a brain entry. Add a new dated entry that says what it replaces.
-- Always date: entries start with `YYYY-MM-DD`; new lesson files are named `docs/brain/lessons/YYYY-MM-DD-issue-N.md`.
+- Always date: entries start with `YYYY-MM-DD`; new lesson files are named `docs/brain/lessons/YYYY-MM-DD-issue-N.md` and start with YAML frontmatter (`date`, `ticket`, `tags`).
 - State facts about the owner or the project only if they are in `brain/FACTS.md` or provable from the code. Otherwise leave them out.
 
 ### Always

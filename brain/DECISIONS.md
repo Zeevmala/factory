@@ -14,3 +14,5 @@ Format: `YYYY-MM-DD — decision. Why. (replaces YYYY-MM-DD, if it does)`
 - 2026-11-15 — The weekly curate run may change only `brain/playbooks/` and `brain/digests/`, through a pull request. Facts, voice, principles and decisions are yours alone.
 - 2026-11-15 — Runs read `brain/` from the factory's `main` branch; prompts and workflows stay on `v1`. Brain is content: an approved playbook change should be live on merge, without a code release.
 - 2026-11-15 — Every run records its cost and turn count on the ticket or PR. A job that costs more than it saves gets fixed or dropped.
+- 2026-11-16 — Lesson files start with YAML frontmatter (`date`, `ticket`, `tags`). Searchable by tag, readable in Obsidian, and the curate run can group repeated causes.
+- 2026-11-16 — Stack defaults live in `brain/STACK.md` and bind new services and new dependency choices only. A global "modern stack only" rule would make reviewers reject correct code in projects built on something else.

@@ -47,11 +47,11 @@ curate PR: digests/<week>.md + playbooks  ◀── Friday curate run reads ever
                                                 merged / rejected / to-human, cost per run
 ```
 
-- **What runs read.** Build runs read `FACTS.md`, `PRINCIPLES.md`, `playbooks/build.md`, and `VOICE.md` before writing prose; reviewers read `PRINCIPLES.md`, `FACTS.md` and `playbooks/review.md`. Runs read `brain/` from `main`, so a merged brain change is live at once; prompts and workflows still release through `v1`.
+- **What runs read.** Build runs read `FACTS.md`, `PRINCIPLES.md`, `STACK.md`, `playbooks/build.md`, and `VOICE.md` before writing prose; reviewers read `PRINCIPLES.md`, `STACK.md`, `FACTS.md` and `playbooks/review.md`. Build runs also search past decisions and lessons for the ticket's key terms before they design anything. Runs read `brain/` from `main`, so a merged brain change is live at once; prompts and workflows still release through `v1`.
 - **Facts file.** A run may state a fact about you or a project only if it is in `FACTS.md` or provable from the code. The reviewer blocks unsupported claims.
-- **Append-only, dated.** Lessons are one file each with the date in the name, so concurrent PRs never conflict. A build PR that edits or deletes an existing brain entry gets a warning in its description, and the reviewer blocks it.
+- **Append-only, dated.** Lessons are one file each with the date in the name, so concurrent PRs never conflict, and start with YAML frontmatter (`date`, `ticket`, `tags`) so they can be searched by tag and opened in Obsidian. A build PR that edits or deletes an existing brain entry gets a warning in its description, and the reviewer blocks it.
 - **Cost per job.** Every run and review comment carries its cost (API-equivalent USD) and turn count, plus a machine-readable `<!-- factory-cost -->` line. The digest totals them per project and per merged ticket.
-- **Curate.** Fridays 06:37 UTC, or by hand from the Actions tab. The agent runs with a read-only token and may edit only `brain/playbooks/` and `brain/digests/`; a separate job applies the patch only if every path is a plain Markdown file under those two folders. Facts, voice, principles and decisions change only when you edit them. It reads public projects only; a private one shows up as unreadable in the digest.
+- **Curate.** Fridays 06:37 UTC, or by hand from the Actions tab. The agent runs with a read-only token and may edit only `brain/playbooks/` and `brain/digests/`; a separate job applies the patch only if every path is a plain Markdown file under those two folders. Facts, voice, principles, stack and decisions change only when you edit them. It reads public projects only; a private one shows up as unreadable in the digest.
 - **Private context stays out.** This repo is public. Customer data, private numbers and your personal notes go in a private repository that runs do not read.
 
 ## Rollout
@@ -65,7 +65,7 @@ $env:CLAUDE_CODE_OAUTH_TOKEN = Read-Host -MaskInput 'Token'   # from `claude set
 ./Deploy-Factory.ps1          # creates the public repo <you>/factory and its v1 release branch
 ```
 
-Then fill in the blanks in `brain/FACTS.md` and the examples in `brain/VOICE.md`, and correct anything in `brain/PRINCIPLES.md` that is not how you decide.
+Then fill in the blanks in `brain/FACTS.md` and the examples in `brain/VOICE.md`, and correct anything in `brain/PRINCIPLES.md` and `brain/STACK.md` that is not how you decide.
 
 It must be public so that public and private projects can both call it. It contains no secrets.
 

@@ -7,7 +7,7 @@ Once a week you turn what the factory did into better rules for next week. The o
 - `brain/` (this repository, checked out): the current facts, voice, principles, decisions and playbooks.
 - `.factory-run/week/INDEX.md`: the window, and the name of the digest file to write.
 - `.factory-run/week/<owner>__<repo>/` for each connected project:
-  - `lessons/`: lesson files that build runs added and the owner merged this week.
+  - `lessons/`: lesson files that build runs added and the owner merged this week. Each starts with YAML frontmatter (`date`, `ticket`, `tags`); group by tag to find repeated causes. A lesson without frontmatter is still evidence; list it under "Anomalies".
   - `factory-comments.md`: every factory run and review comment from the week. Lines `<!-- factory-cost cents=N turns=N ... -->` carry each run's cost and outcome.
   - `owner-comments.md`: what the owner and collaborators wrote on issues and PRs this week. These are the strongest signal: a human correcting the factory.
   - `merged.md`, `closed-unmerged.md`, `ready-for-human.md`: outcomes. A PR closed without merging is work the owner rejected.
@@ -34,7 +34,7 @@ Name the cause, with a link to the comment or PR that shows it. "The run failed"
 ## Stop doing
 Things that cost runs or the owner's time and produced nothing. Include any ticket type or project whose cost per merged ticket is out of line.
 ## Proposed changes the owner must make
-Changes to FACTS, VOICE, PRINCIPLES, DECISIONS, a project's gate or checklist, or the factory itself. Each with the evidence.
+Changes to FACTS, VOICE, PRINCIPLES, STACK, DECISIONS, a project's gate or checklist, or the factory itself. Each with the evidence.
 ## Playbook changes in this PR
 One line per added, changed or removed rule, with the reason.
 ## Anomalies

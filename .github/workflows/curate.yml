@@ -134,6 +134,7 @@ jobs:
                   "Edit(./brain/FACTS.md)",
                   "Edit(./brain/VOICE.md)",
                   "Edit(./brain/PRINCIPLES.md)",
+                  "Edit(./brain/STACK.md)",
                   "Edit(./brain/DECISIONS.md)",
                   "Edit(./brain/projects.txt)"
                 ]

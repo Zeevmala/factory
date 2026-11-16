@@ -10,10 +10,16 @@ Every week the factory's curate run reads the lessons added here, together with 
 A lesson file:
 
 ```markdown
+---
+date: YYYY-MM-DD
+ticket: N
+tags: [gate, crs]
+---
 # <one-line rule the next run should follow>
 
-- Date: YYYY-MM-DD
-- Ticket: #N
-- What happened: what was tried, what failed or surprised, with the command or error.
-- Rule: what to do next time, specific enough to act on.
+**What happened:** what was tried, what failed or surprised, with the command or error.
+
+**Rule:** what to do next time, specific enough to act on.
 ```
+
+The frontmatter is plain YAML between two `---` lines, with exactly these three keys: `date` (ISO date), `ticket` (issue number, no `#`), `tags` (one to four lowercase words naming the area, such as `gate`, `crs`, `tests`, `deps`, `i18n`). It makes lessons searchable by tag here and in Obsidian, and lets the curate run group them.
