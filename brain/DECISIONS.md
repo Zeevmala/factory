@@ -16,3 +16,4 @@ Format: `YYYY-MM-DD — decision. Why. (replaces YYYY-MM-DD, if it does)`
 - 2026-11-15 — Every run records its cost and turn count on the ticket or PR. A job that costs more than it saves gets fixed or dropped.
 - 2026-11-16 — Lesson files start with YAML frontmatter (`date`, `ticket`, `tags`). Searchable by tag, readable in Obsidian, and the curate run can group repeated causes.
 - 2026-11-16 — Stack defaults live in `brain/STACK.md` and bind new services and new dependency choices only. A global "modern stack only" rule would make reviewers reject correct code in projects built on something else.
+- 2026-11-16 — No GCP. Stack defaults stay provider-neutral and no hosting platform is chosen yet; a run that needs one asks.
