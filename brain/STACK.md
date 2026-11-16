@@ -6,7 +6,16 @@ Default technology choices. They settle a choice the design leaves open; they ar
 
 - 2026-11-16: These defaults bind **new services and new dependency choices**. Existing code keeps the stack it has: a project built on something else (a client-side PWA on Firebase, a static page) is correct as it is, and a reviewer does not flag it.
 - 2026-11-16: A design doc may choose differently. It says why, and the project records it in `docs/brain/DECISIONS.md`. Departing from a default without that record is a review finding.
-- 2026-11-16: No hosting platform or cloud provider is chosen, and GCP is ruled out. The defaults below are provider-neutral. A run that must pick where a service is hosted asks in `BLOCKED.md` instead of assuming, unless the design doc names the platform.
+- 2026-11-16: GitHub is the platform, static-first (see Platform below). GCP is ruled out. A run that needs a server, a database or large storage asks in `BLOCKED.md` which add-on to use, unless the design doc names it.
+
+## Platform
+
+- 2026-11-16: Design for no server first. Frontends, static sites and map apps deploy to GitHub Pages.
+- 2026-11-16: Static geodata is served as files the browser reads directly with range requests: PMTiles for tiles, COG for rasters, GeoParquet or FlatGeobuf for vectors. Within GitHub Pages' size limits only; check them in the design.
+- 2026-11-16: Batch and scheduled work (EO processing, data refreshes) runs in GitHub Actions: it runs, writes its outputs, and exits. Outputs above the Pages limits go to object storage, not to git.
+- 2026-11-16: Container images, when a service needs one, are published to GitHub's container registry (ghcr.io).
+- 2026-11-16: GitHub cannot host a long-running API, a database, or large files. When a design needs one, it adds one add-on per need and records the choice and the reason in the project's `docs/brain/DECISIONS.md`: a managed PostgreSQL with PostGIS (and pgvector when needed), a small container host for the API, S3-compatible object storage for large files. Candidates are compared on current pricing and limits at that time; none is pre-chosen here.
+- 2026-11-16: Secrets (API keys, model keys) never ship to the browser. A feature that needs one needs a server-side add-on, or an Actions job that runs ahead of time.
 
 ## Backend services (new)
 
