@@ -1,0 +1,26 @@
+<!-- @dsCard group="Map" height=292 subtitle="People and places on the map" -->
+<style>
+  body { margin: 0; padding: 16px; background: var(--cw-surface-0); color: var(--cw-text); font-family: var(--cw-font-sans, var(--font-sans)); }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+  .pin { position: absolute; transform: translate(-50%, -50%); }
+  [dir="rtl"] .pin { transform: translate(50%, -50%); }
+</style>
+<div class="cw-map cw-map--muted" id="map" style="height: 260px; max-width: 640px">
+  <button class="cw-marker pin" style="left: 42%; top: 30%; --cw-marker-color: var(--cw-data-cat-1)" aria-label="Ze'ev">Z</button>
+  <button class="cw-marker cw-marker--selected pin" style="left: 62%; top: 56%; --cw-marker-color: var(--cw-data-cat-2)" aria-label="Noa, selected">N</button>
+  <button class="cw-marker pin" style="left: 86%; top: 34%; --cw-marker-color: var(--cw-data-cat-3)" aria-label="Amir">A</button>
+  <button class="cw-marker cw-marker--cluster pin" style="left: 52%; top: 82%; --cw-marker-color: var(--cw-data-cat-other)" aria-label="12 places">12</button>
+  <span class="cw-marker cw-marker--dot pin" style="left: 74%; top: 80%; --cw-marker-color: var(--cw-data-cat-4)"></span>
+  <span class="cw-marker cw-marker--dot pin" style="left: 90%; top: 70%; --cw-marker-color: var(--cw-data-cat-5)"></span>
+  <span class="cw-marker cw-marker--dot pin" style="left: 46%; top: 60%; --cw-marker-color: var(--cw-data-cat-6)"></span>
+</div>
+<script>
+  var svg = Cartowolf.miniMap(document.getElementById("map"), { emphasis: "muted", labels: false });
+  var ns = "http://www.w3.org/2000/svg";
+  [["M202 90 C240 120 270 150 298 168", 7, "var(--cw-data-route-casing)"], ["M202 90 C240 120 270 150 298 168", 4, "var(--cw-data-route)"]].forEach(function (r) {
+    var p = document.createElementNS(ns, "path");
+    p.setAttribute("d", r[0]); p.setAttribute("fill", "none"); p.setAttribute("stroke-width", r[1]); p.setAttribute("stroke-linecap", "round");
+    p.style.stroke = r[2];
+    svg.appendChild(p);
+  });
+</script>

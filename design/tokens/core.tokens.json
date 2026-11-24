@@ -1,0 +1,1769 @@
+{
+  "$description": "Cartowolf core tokens: raw scales. Components and apps use the theme tokens, which alias these.",
+  "color": {
+    "$type": "color",
+    "white": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          1,
+          1,
+          1
+        ],
+        "hex": "#ffffff"
+      },
+      "$description": "Pure white. Text on accent in the light theme, local streets on light basemaps."
+    },
+    "black": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0,
+          0,
+          0
+        ],
+        "hex": "#000000"
+      },
+      "$description": "Pure black. Not used directly; kept as the end of the scale."
+    },
+    "neutral": {
+      "50": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9725,
+            0.9804,
+            0.9922
+          ],
+          "hex": "#f8fafd"
+        }
+      },
+      "100": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9412,
+            0.9529,
+            0.9647
+          ],
+          "hex": "#f0f3f6"
+        }
+      },
+      "200": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8863,
+            0.902,
+            0.9137
+          ],
+          "hex": "#e2e6e9"
+        }
+      },
+      "300": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8157,
+            0.8314,
+            0.8471
+          ],
+          "hex": "#d0d4d8"
+        }
+      },
+      "400": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.6824,
+            0.702,
+            0.7216
+          ],
+          "hex": "#aeb3b8"
+        }
+      },
+      "500": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.5451,
+            0.5725,
+            0.5961
+          ],
+          "hex": "#8b9298"
+        }
+      },
+      "600": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.4078,
+            0.4392,
+            0.4667
+          ],
+          "hex": "#687077"
+        }
+      },
+      "700": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.3137,
+            0.3451,
+            0.3725
+          ],
+          "hex": "#50585f"
+        }
+      },
+      "800": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.2314,
+            0.2549,
+            0.2784
+          ],
+          "hex": "#3b4147"
+        }
+      },
+      "900": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.1569,
+            0.1725,
+            0.1922
+          ],
+          "hex": "#282c31"
+        }
+      },
+      "950": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.098,
+            0.1098,
+            0.1255
+          ],
+          "hex": "#191c20"
+        }
+      },
+      "$description": "Cool grey with a slight blue bias. Surfaces, text, borders, muted basemap."
+    },
+    "hydro": {
+      "50": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9647,
+            0.9843,
+            1
+          ],
+          "hex": "#f6fbff"
+        }
+      },
+      "100": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9098,
+            0.9569,
+            1
+          ],
+          "hex": "#e8f4ff"
+        }
+      },
+      "200": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8118,
+            0.9137,
+            1
+          ],
+          "hex": "#cfe9ff"
+        }
+      },
+      "300": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.6863,
+            0.851,
+            0.9882
+          ],
+          "hex": "#afd9fc"
+        }
+      },
+      "400": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.4667,
+            0.7294,
+            0.9333
+          ],
+          "hex": "#77baee"
+        }
+      },
+      "500": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.2275,
+            0.5961,
+            0.8549
+          ],
+          "hex": "#3a98da"
+        }
+      },
+      "600": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0078,
+            0.4588,
+            0.702
+          ],
+          "hex": "#0275b3"
+        }
+      },
+      "700": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0196,
+            0.3608,
+            0.5529
+          ],
+          "hex": "#055c8d"
+        }
+      },
+      "800": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0627,
+            0.2667,
+            0.4
+          ],
+          "hex": "#104466"
+        }
+      },
+      "900": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0627,
+            0.1843,
+            0.2667
+          ],
+          "hex": "#102f44"
+        }
+      },
+      "950": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0392,
+            0.1176,
+            0.1725
+          ],
+          "hex": "#0a1e2c"
+        }
+      },
+      "$description": "Hydrography blue, the water plate of a topographic map. Brand and accent."
+    },
+    "vegetation": {
+      "50": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9373,
+            1,
+            0.9529
+          ],
+          "hex": "#effff3"
+        }
+      },
+      "100": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8784,
+            0.9843,
+            0.902
+          ],
+          "hex": "#e0fbe6"
+        }
+      },
+      "200": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8118,
+            0.9373,
+            0.8392
+          ],
+          "hex": "#cfefd6"
+        }
+      },
+      "300": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.7137,
+            0.8784,
+            0.7529
+          ],
+          "hex": "#b6e0c0"
+        }
+      },
+      "400": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.5176,
+            0.7686,
+            0.5843
+          ],
+          "hex": "#84c495"
+        }
+      },
+      "500": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.3137,
+            0.651,
+            0.4196
+          ],
+          "hex": "#50a66b"
+        }
+      },
+      "600": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.1647,
+            0.5098,
+            0.2902
+          ],
+          "hex": "#2a824a"
+        }
+      },
+      "700": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.1255,
+            0.4,
+            0.2275
+          ],
+          "hex": "#20663a"
+        }
+      },
+      "800": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.1137,
+            0.2941,
+            0.1725
+          ],
+          "hex": "#1d4b2c"
+        }
+      },
+      "900": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0863,
+            0.2,
+            0.1216
+          ],
+          "hex": "#16331f"
+        }
+      },
+      "950": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0549,
+            0.1294,
+            0.0745
+          ],
+          "hex": "#0e2113"
+        }
+      },
+      "$description": "Vegetation green, the woodland plate."
+    },
+    "contour": {
+      "50": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            0.9765,
+            0.9569
+          ],
+          "hex": "#fff9f4"
+        }
+      },
+      "100": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            0.9373,
+            0.8941
+          ],
+          "hex": "#ffefe4"
+        }
+      },
+      "200": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9843,
+            0.8745,
+            0.8
+          ],
+          "hex": "#fbdfcc"
+        }
+      },
+      "300": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9373,
+            0.8,
+            0.698
+          ],
+          "hex": "#efccb2"
+        }
+      },
+      "400": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8549,
+            0.6549,
+            0.502
+          ],
+          "hex": "#daa780"
+        }
+      },
+      "500": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.749,
+            0.502,
+            0.3098
+          ],
+          "hex": "#bf804f"
+        }
+      },
+      "600": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.6039,
+            0.3686,
+            0.1765
+          ],
+          "hex": "#9a5e2d"
+        }
+      },
+      "700": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.4745,
+            0.2902,
+            0.1333
+          ],
+          "hex": "#794a22"
+        }
+      },
+      "800": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.349,
+            0.2157,
+            0.1098
+          ],
+          "hex": "#59371c"
+        }
+      },
+      "900": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.2353,
+            0.149,
+            0.0824
+          ],
+          "hex": "#3c2615"
+        }
+      },
+      "950": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.1529,
+            0.0941,
+            0.051
+          ],
+          "hex": "#27180d"
+        }
+      },
+      "$description": "Contour brown, the relief plate. Major roads on the basemap."
+    },
+    "survey": {
+      "50": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            0.9725,
+            0.9843
+          ],
+          "hex": "#fff8fb"
+        }
+      },
+      "100": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            0.9294,
+            0.9569
+          ],
+          "hex": "#ffedf4"
+        }
+      },
+      "200": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            0.851,
+            0.9098
+          ],
+          "hex": "#ffd9e8"
+        }
+      },
+      "300": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            0.7451,
+            0.851
+          ],
+          "hex": "#ffbed9"
+        }
+      },
+      "400": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9412,
+            0.5647,
+            0.7333
+          ],
+          "hex": "#f090bb"
+        }
+      },
+      "500": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.851,
+            0.3765,
+            0.6078
+          ],
+          "hex": "#d9609b"
+        }
+      },
+      "600": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.6941,
+            0.2353,
+            0.4706
+          ],
+          "hex": "#b13c78"
+        }
+      },
+      "700": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.5451,
+            0.1843,
+            0.3686
+          ],
+          "hex": "#8b2f5e"
+        }
+      },
+      "800": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.3961,
+            0.149,
+            0.2745
+          ],
+          "hex": "#652646"
+        }
+      },
+      "900": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.2667,
+            0.1098,
+            0.1843
+          ],
+          "hex": "#441c2f"
+        }
+      },
+      "950": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.1725,
+            0.0706,
+            0.1176
+          ],
+          "hex": "#2c121e"
+        }
+      },
+      "$description": "Survey magenta, the revision and grid overprint. Boundaries and selection."
+    },
+    "vermilion": {
+      "50": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            0.9725,
+            0.9647
+          ],
+          "hex": "#fff8f6"
+        }
+      },
+      "100": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            0.9333,
+            0.9137
+          ],
+          "hex": "#ffeee9"
+        }
+      },
+      "200": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            0.8667,
+            0.8235
+          ],
+          "hex": "#ffddd2"
+        }
+      },
+      "300": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            0.7686,
+            0.6941
+          ],
+          "hex": "#ffc4b1"
+        }
+      },
+      "400": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9882,
+            0.5725,
+            0.4392
+          ],
+          "hex": "#fc9270"
+        }
+      },
+      "500": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9098,
+            0.3765,
+            0.2
+          ],
+          "hex": "#e86033"
+        }
+      },
+      "600": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.749,
+            0.2314,
+            0
+          ],
+          "hex": "#bf3b00"
+        }
+      },
+      "700": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.5882,
+            0.1804,
+            0.0118
+          ],
+          "hex": "#962e03"
+        }
+      },
+      "800": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.4275,
+            0.149,
+            0.0588
+          ],
+          "hex": "#6d260f"
+        }
+      },
+      "900": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.2824,
+            0.1137,
+            0.0588
+          ],
+          "hex": "#481d0f"
+        }
+      },
+      "950": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.1804,
+            0.0745,
+            0.0392
+          ],
+          "hex": "#2e130a"
+        }
+      },
+      "$description": "Danger."
+    },
+    "amber": {
+      "50": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            0.9765,
+            0.9412
+          ],
+          "hex": "#fff9f0"
+        }
+      },
+      "100": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            0.9451,
+            0.8431
+          ],
+          "hex": "#fff1d7"
+        }
+      },
+      "200": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9765,
+            0.8863,
+            0.7333
+          ],
+          "hex": "#f9e2bb"
+        }
+      },
+      "300": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9255,
+            0.8157,
+            0.6118
+          ],
+          "hex": "#ecd09c"
+        }
+      },
+      "400": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8431,
+            0.6706,
+            0.3451
+          ],
+          "hex": "#d7ab58"
+        }
+      },
+      "500": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.7255,
+            0.5294,
+            0
+          ],
+          "hex": "#b98700"
+        }
+      },
+      "600": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.5608,
+            0.4039,
+            0
+          ],
+          "hex": "#8f6700"
+        }
+      },
+      "700": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.4392,
+            0.3137,
+            0
+          ],
+          "hex": "#705000"
+        }
+      },
+      "800": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.3294,
+            0.2314,
+            0
+          ],
+          "hex": "#543b00"
+        }
+      },
+      "900": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.2314,
+            0.1569,
+            0
+          ],
+          "hex": "#3b2800"
+        }
+      },
+      "950": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.149,
+            0.098,
+            0.0039
+          ],
+          "hex": "#261901"
+        }
+      },
+      "$description": "Warning."
+    },
+    "teal": {
+      "50": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9216,
+            1,
+            0.9961
+          ],
+          "hex": "#ebfffe"
+        }
+      },
+      "100": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8549,
+            0.9804,
+            0.9725
+          ],
+          "hex": "#dafaf8"
+        }
+      },
+      "200": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.7843,
+            0.9333,
+            0.9255
+          ],
+          "hex": "#c8eeec"
+        }
+      },
+      "300": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.6745,
+            0.8745,
+            0.8627
+          ],
+          "hex": "#acdfdc"
+        }
+      },
+      "400": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.451,
+            0.7647,
+            0.7529
+          ],
+          "hex": "#73c3c0"
+        }
+      },
+      "500": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.1725,
+            0.6431,
+            0.6314
+          ],
+          "hex": "#2ca4a1"
+        }
+      },
+      "600": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0,
+            0.498,
+            0.4863
+          ],
+          "hex": "#007f7c"
+        }
+      },
+      "700": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0,
+            0.3922,
+            0.3843
+          ],
+          "hex": "#006462"
+        }
+      },
+      "800": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0118,
+            0.2902,
+            0.2863
+          ],
+          "hex": "#034a49"
+        }
+      },
+      "900": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0431,
+            0.2,
+            0.1922
+          ],
+          "hex": "#0b3331"
+        }
+      },
+      "950": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0275,
+            0.1255,
+            0.1216
+          ],
+          "hex": "#07201f"
+        }
+      },
+      "$description": "Success. Sits off the red-green axis so it stays distinct from vermilion under colour-vision deficiency."
+    }
+  },
+  "space": {
+    "1": {
+      "$value": {
+        "value": 4,
+        "unit": "px"
+      },
+      "$description": "Icon-to-label gap, chip padding."
+    },
+    "2": {
+      "$value": {
+        "value": 8,
+        "unit": "px"
+      },
+      "$description": "Control padding, gaps inside a card."
+    },
+    "3": {
+      "$value": {
+        "value": 12,
+        "unit": "px"
+      },
+      "$description": "Gaps between related controls."
+    },
+    "4": {
+      "$value": {
+        "value": 16,
+        "unit": "px"
+      },
+      "$description": "Card padding, page gutter on phones."
+    },
+    "5": {
+      "$value": {
+        "value": 24,
+        "unit": "px"
+      },
+      "$description": "Gaps between groups."
+    },
+    "6": {
+      "$value": {
+        "value": 32,
+        "unit": "px"
+      },
+      "$description": "Section spacing."
+    },
+    "7": {
+      "$value": {
+        "value": 48,
+        "unit": "px"
+      },
+      "$description": "Page-level spacing."
+    },
+    "8": {
+      "$value": {
+        "value": 64,
+        "unit": "px"
+      },
+      "$description": "Hero spacing."
+    },
+    "$type": "dimension",
+    "$description": "4px grid."
+  },
+  "radius": {
+    "$type": "dimension",
+    "sm": {
+      "$value": {
+        "value": 2,
+        "unit": "px"
+      },
+      "$description": "Legend swatches, map callout tips."
+    },
+    "md": {
+      "$value": {
+        "value": 6,
+        "unit": "px"
+      },
+      "$description": "Buttons, inputs, map controls."
+    },
+    "lg": {
+      "$value": {
+        "value": 12,
+        "unit": "px"
+      },
+      "$description": "Cards, sheets, place cards."
+    },
+    "pill": {
+      "$value": {
+        "value": 999,
+        "unit": "px"
+      },
+      "$description": "Badges, chips, markers."
+    }
+  },
+  "size": {
+    "$type": "dimension",
+    "icon": {
+      "$value": {
+        "value": 20,
+        "unit": "px"
+      },
+      "$description": "Icons inside controls."
+    },
+    "control": {
+      "$value": {
+        "value": 36,
+        "unit": "px"
+      },
+      "$description": "Height of buttons and map controls with a pointer."
+    },
+    "target": {
+      "$value": {
+        "value": 44,
+        "unit": "px"
+      },
+      "$description": "Minimum touch target."
+    },
+    "marker": {
+      "$value": {
+        "value": 28,
+        "unit": "px"
+      },
+      "$description": "Diameter of a point marker."
+    }
+  },
+  "stroke": {
+    "$type": "dimension",
+    "hairline": {
+      "$value": {
+        "value": 1,
+        "unit": "px"
+      },
+      "$description": "Borders and dividers."
+    },
+    "casing": {
+      "$value": {
+        "value": 2,
+        "unit": "px"
+      },
+      "$description": "Outline around markers and data lines so they separate from the basemap."
+    },
+    "route": {
+      "$value": {
+        "value": 4,
+        "unit": "px"
+      },
+      "$description": "Route line."
+    },
+    "route-casing": {
+      "$value": {
+        "value": 7,
+        "unit": "px"
+      },
+      "$description": "Casing under a route line."
+    }
+  },
+  "font": {
+    "family": {
+      "$type": "fontFamily",
+      "sans": {
+        "$value": [
+          "IBM Plex Sans",
+          "IBM Plex Sans Hebrew",
+          "system-ui",
+          "sans-serif"
+        ],
+        "$description": "Interface text. The Hebrew face sits second so mixed strings fall through to it."
+      },
+      "condensed": {
+        "$value": [
+          "IBM Plex Sans Condensed",
+          "IBM Plex Sans Hebrew",
+          "system-ui",
+          "sans-serif"
+        ],
+        "$description": "Dense labels: legends, map callouts, table headers."
+      },
+      "mono": {
+        "$value": [
+          "IBM Plex Mono",
+          "ui-monospace",
+          "monospace"
+        ],
+        "$description": "Coordinates, distances, codes."
+      }
+    },
+    "weight": {
+      "$type": "fontWeight",
+      "regular": {
+        "$value": 400,
+        "$description": "Running text."
+      },
+      "medium": {
+        "$value": 500,
+        "$description": "Labels."
+      },
+      "semibold": {
+        "$value": 600,
+        "$description": "Titles and button labels."
+      }
+    }
+  },
+  "duration": {
+    "$type": "duration",
+    "fast": {
+      "$value": {
+        "value": 120,
+        "unit": "ms"
+      },
+      "$description": "Hover, press."
+    },
+    "base": {
+      "$value": {
+        "value": 200,
+        "unit": "ms"
+      },
+      "$description": "Sheets, popovers."
+    },
+    "slow": {
+      "$value": {
+        "value": 320,
+        "unit": "ms"
+      },
+      "$description": "Camera-linked transitions."
+    }
+  },
+  "easing": {
+    "$type": "cubicBezier",
+    "standard": {
+      "$value": [
+        0.2,
+        0,
+        0,
+        1
+      ],
+      "$description": "All interface motion."
+    }
+  },
+  "z": {
+    "$type": "number",
+    "map": {
+      "$value": 0,
+      "$description": "The map canvas."
+    },
+    "overlay": {
+      "$value": 10,
+      "$description": "Map controls, legend, badges."
+    },
+    "sheet": {
+      "$value": 20,
+      "$description": "Bottom sheets and place cards."
+    },
+    "modal": {
+      "$value": 30,
+      "$description": "Dialogs and their scrim."
+    },
+    "toast": {
+      "$value": 40,
+      "$description": "Transient messages."
+    }
+  },
+  "opacity": {
+    "$type": "number",
+    "disabled": {
+      "$value": 0.4,
+      "$description": "Disabled controls."
+    },
+    "scrim": {
+      "$value": 0.5,
+      "$description": "Backdrop behind a modal."
+    },
+    "fill-area": {
+      "$value": 0.35,
+      "$description": "Fill of a data polygon over the basemap; its outline stays opaque."
+    }
+  },
+  "data": {
+    "$type": "color",
+    "seq": {
+      "hydro": {
+        "1": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.8784,
+              0.9451,
+              1
+            ],
+            "hex": "#e0f1ff"
+          }
+        },
+        "2": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.6157,
+              0.8275,
+              0.9961
+            ],
+            "hex": "#9dd3fe"
+          }
+        },
+        "3": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.3922,
+              0.702,
+              0.9333
+            ],
+            "hex": "#64b3ee"
+          }
+        },
+        "4": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.1608,
+              0.5725,
+              0.8431
+            ],
+            "hex": "#2992d7"
+          }
+        },
+        "5": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0,
+              0.4471,
+              0.6863
+            ],
+            "hex": "#0072af"
+          }
+        },
+        "6": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0,
+              0.3255,
+              0.5098
+            ],
+            "hex": "#005382"
+          }
+        },
+        "7": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0275,
+              0.2118,
+              0.3294
+            ],
+            "hex": "#073654"
+          }
+        },
+        "$description": "Sequential, single hue. Counts and densities. Light is low."
+      },
+      "emrld": {
+        "1": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.8275,
+              0.949,
+              0.6392
+            ],
+            "hex": "#d3f2a3"
+          }
+        },
+        "2": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.5922,
+              0.8824,
+              0.5882
+            ],
+            "hex": "#97e196"
+          }
+        },
+        "3": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.4235,
+              0.7529,
+              0.5451
+            ],
+            "hex": "#6cc08b"
+          }
+        },
+        "4": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.298,
+              0.6078,
+              0.5098
+            ],
+            "hex": "#4c9b82"
+          }
+        },
+        "5": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.1294,
+              0.4784,
+              0.4745
+            ],
+            "hex": "#217a79"
+          }
+        },
+        "6": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0627,
+              0.349,
+              0.3961
+            ],
+            "hex": "#105965"
+          }
+        },
+        "7": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0275,
+              0.251,
+              0.3137
+            ],
+            "hex": "#074050"
+          }
+        },
+        "$description": "Sequential, multi-hue (CARTOColors Emrld, CC BY 4.0). Wider perceptual range than a single hue."
+      }
+    },
+    "div": {
+      "geyser": {
+        "1": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0,
+              0.502,
+              0.502
+            ],
+            "hex": "#008080"
+          }
+        },
+        "2": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.4392,
+              0.6431,
+              0.5804
+            ],
+            "hex": "#70a494"
+          }
+        },
+        "3": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.7059,
+              0.7843,
+              0.6588
+            ],
+            "hex": "#b4c8a8"
+          }
+        },
+        "4": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.9647,
+              0.9294,
+              0.7412
+            ],
+            "hex": "#f6edbd"
+          }
+        },
+        "5": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.9294,
+              0.7333,
+              0.5412
+            ],
+            "hex": "#edbb8a"
+          }
+        },
+        "6": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.8706,
+              0.5412,
+              0.3529
+            ],
+            "hex": "#de8a5a"
+          }
+        },
+        "7": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.7922,
+              0.3373,
+              0.1725
+            ],
+            "hex": "#ca562c"
+          }
+        },
+        "$description": "Diverging (CARTOColors Geyser, CC BY 4.0). Change around a midpoint: below is teal, above is rust."
+      },
+      "earth": {
+        "1": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.6314,
+              0.4118,
+              0.1569
+            ],
+            "hex": "#a16928"
+          }
+        },
+        "2": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.7412,
+              0.5725,
+              0.3529
+            ],
+            "hex": "#bd925a"
+          }
+        },
+        "3": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.8392,
+              0.7412,
+              0.5529
+            ],
+            "hex": "#d6bd8d"
+          }
+        },
+        "4": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.9294,
+              0.9176,
+              0.7608
+            ],
+            "hex": "#edeac2"
+          }
+        },
+        "5": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.7098,
+              0.7843,
+              0.7216
+            ],
+            "hex": "#b5c8b8"
+          }
+        },
+        "6": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.4745,
+              0.6549,
+              0.6745
+            ],
+            "hex": "#79a7ac"
+          }
+        },
+        "7": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.1569,
+              0.5294,
+              0.6314
+            ],
+            "hex": "#2887a1"
+          }
+        },
+        "$description": "Diverging (CARTOColors Earth, CC BY 4.0). Dry to wet, loss to gain."
+      }
+    }
+  },
+  "type": {
+    "$type": "typography",
+    "display": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontWeight": "{font.weight.semibold}",
+        "fontSize": {
+          "value": 40,
+          "unit": "px"
+        },
+        "lineHeight": 1.1,
+        "letterSpacing": {
+          "value": -0.8,
+          "unit": "px"
+        }
+      },
+      "$description": "Page titles, one per view."
+    },
+    "title-1": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontWeight": "{font.weight.semibold}",
+        "fontSize": {
+          "value": 28,
+          "unit": "px"
+        },
+        "lineHeight": 1.2,
+        "letterSpacing": {
+          "value": -0.3,
+          "unit": "px"
+        }
+      },
+      "$description": "Section titles."
+    },
+    "title-2": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontWeight": "{font.weight.semibold}",
+        "fontSize": {
+          "value": 20,
+          "unit": "px"
+        },
+        "lineHeight": 1.3,
+        "letterSpacing": {
+          "value": 0,
+          "unit": "px"
+        }
+      },
+      "$description": "Card and sheet titles."
+    },
+    "body": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontWeight": "{font.weight.regular}",
+        "fontSize": {
+          "value": 15,
+          "unit": "px"
+        },
+        "lineHeight": 1.5,
+        "letterSpacing": {
+          "value": 0,
+          "unit": "px"
+        }
+      },
+      "$description": "Running text."
+    },
+    "body-strong": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontWeight": "{font.weight.semibold}",
+        "fontSize": {
+          "value": 15,
+          "unit": "px"
+        },
+        "lineHeight": 1.5,
+        "letterSpacing": {
+          "value": 0,
+          "unit": "px"
+        }
+      },
+      "$description": "Emphasis inside running text, button labels."
+    },
+    "small": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontWeight": "{font.weight.regular}",
+        "fontSize": {
+          "value": 13,
+          "unit": "px"
+        },
+        "lineHeight": 1.4,
+        "letterSpacing": {
+          "value": 0,
+          "unit": "px"
+        }
+      },
+      "$description": "Secondary text, help text."
+    },
+    "label": {
+      "$value": {
+        "fontFamily": "{font.family.condensed}",
+        "fontWeight": "{font.weight.medium}",
+        "fontSize": {
+          "value": 13,
+          "unit": "px"
+        },
+        "lineHeight": 1.25,
+        "letterSpacing": {
+          "value": 0.1,
+          "unit": "px"
+        }
+      },
+      "$description": "Legend entries, map callouts, chips."
+    },
+    "overline": {
+      "$value": {
+        "fontFamily": "{font.family.condensed}",
+        "fontWeight": "{font.weight.semibold}",
+        "fontSize": {
+          "value": 11,
+          "unit": "px"
+        },
+        "lineHeight": 1.3,
+        "letterSpacing": {
+          "value": 0.9,
+          "unit": "px"
+        }
+      },
+      "$description": "Uppercase group headings. Latin only: Hebrew has no capitals, so set Hebrew headings in label."
+    },
+    "data": {
+      "$value": {
+        "fontFamily": "{font.family.mono}",
+        "fontWeight": "{font.weight.regular}",
+        "fontSize": {
+          "value": 13,
+          "unit": "px"
+        },
+        "lineHeight": 1.4,
+        "letterSpacing": {
+          "value": 0,
+          "unit": "px"
+        }
+      },
+      "$description": "Coordinates, distances, durations. Tabular figures."
+    }
+  }
+}

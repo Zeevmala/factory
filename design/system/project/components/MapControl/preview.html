@@ -1,0 +1,20 @@
+<!-- @dsCard group="Map" height=252 subtitle="Zoom, fit and locate" -->
+<style>
+  body { margin: 0; padding: 16px; background: var(--cw-surface-0); color: var(--cw-text); font-family: var(--cw-font-sans, var(--font-sans)); }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+  .pin { position: absolute; transform: translate(-50%, -50%); }
+  [dir="rtl"] .pin { transform: translate(50%, -50%); }
+</style>
+<div class="cw-map" id="map" style="height: 220px; max-width: 640px">
+  <div class="cw-control" style="position: absolute; inset-block-start: 12px; inset-inline-end: 12px">
+    <button class="cw-control__button" aria-label="Zoom in"><svg viewBox="0 0 20 20"><path d="M10 4v12M4 10h12"/></svg></button>
+    <button class="cw-control__button" aria-label="Zoom out"><svg viewBox="0 0 20 20"><path d="M4 10h12"/></svg></button>
+  </div>
+  <div class="cw-control" style="position: absolute; inset-block-end: 12px; inset-inline-end: 12px">
+    <button class="cw-control__button" aria-label="Show everyone"><svg viewBox="0 0 20 20"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/><circle cx="10" cy="10" r="2"/></svg></button>
+    <button class="cw-control__button" aria-pressed="true" aria-label="Follow my location"><svg viewBox="0 0 20 20"><path d="M16 4L3.5 9.2l5.2 2.1 2.1 5.2z"/></svg></button>
+  </div>
+</div>
+<script>
+  Cartowolf.miniMap(document.getElementById("map"), { emphasis: "default" });
+</script>

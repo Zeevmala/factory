@@ -1,0 +1,30 @@
+name: design
+
+# Checks the design system on every change to it: contrast pairings, colour-blind
+# safety of the palettes, and that the generated files match the token sources.
+
+on:
+  pull_request:
+    paths: ["design/**", ".github/workflows/design.yml"]
+  push:
+    branches: [main]
+    paths: ["design/**", ".github/workflows/design.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - name: Generated files are current
+        run: node design/scripts/build.mjs --check
+      - name: Contrast, palette and consistency checks
+        run: node --test design/test/*.test.mjs

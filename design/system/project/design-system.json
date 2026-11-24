@@ -1,0 +1,14 @@
+{
+  "v": 3,
+  "layout": "files",
+  "createdOnFiles": { "v": 1, "at": "2026-11-24T18:27:57Z" },
+  "title": "Cartowolf",
+  "namespace": "Cartowolf",
+  "libraries": [],
+  "sections": {},
+  "groups": [],
+  "assetGroups": {},
+  "blobs": {},
+  "docs": { "sections": [] },
+  "lastChange": { "by": "Ze'ev", "at": "2026-11-24T18:27:57Z", "via": "Claude", "note": "First version: tokens, basemap flavors, data palettes, eight components." }
+}

@@ -1,0 +1,44 @@
+<!-- @dsCard height=288 -->
+<style>
+  body { margin: 0; background: var(--cw-surface-0); }
+  .cover { position: relative; width: 960px; height: 288px; overflow: hidden; background: var(--cw-surface-0); }
+  .cover svg { position: absolute; inset: 0; display: block; }
+  .sea { fill: var(--cw-hydro-600); }
+  .shoal { fill: var(--cw-hydro-300); }
+  .relief { fill: var(--cw-contour-500); }
+  .wood { fill: var(--cw-vegetation-600); }
+  .ink { fill: var(--cw-text); }
+  .sheet { rx: var(--cw-radius-sm); }
+  .tick { stroke: var(--cw-survey-500); stroke-width: var(--cw-stroke-casing); stroke-linecap: square; }
+  .name { position: absolute; left: 48px; bottom: 92px; margin: 0; color: var(--cw-text); font: 600 80px/0.95 var(--cw-font-sans, var(--font-sans)); letter-spacing: -2px; }
+  .tagline { position: absolute; left: 48px; bottom: 40px; width: 420px; margin: 0; color: var(--cw-text-muted); font: 400 13px/1.4 var(--cw-font-sans, var(--font-sans)); }
+</style>
+<div class="cover">
+  <!--
+    Blocks: hydro-600 240x288 slab, hydro-300 240x96, contour-500 192x96, vegetation-600 96x96, text 96x48 (all multiples of space-7, 48px).
+    Arrangement: one tall slab of sea bleeding off the top and right edges, with land-plate satellites stepping down to its left.
+    Pattern: the technical row, a plus grid at one spacing step, because the system is built on a survey grid: graticule ticks in survey-500 at a space-7 pitch.
+    Scales: space-7 (48px) for every side and the tick pitch, radius-sm for the corners, stroke-casing for the ticks.
+  -->
+  <svg width="960" height="288" viewBox="0 0 960 288" aria-hidden="true">
+    <rect class="sea" x="720" y="0" width="240" height="288"/>
+    <rect class="shoal" x="720" y="192" width="240" height="96"/>
+    <rect class="relief sheet" x="528" y="48" width="192" height="96"/>
+    <rect class="wood sheet" x="624" y="144" width="96" height="96"/>
+    <rect class="ink sheet" x="528" y="144" width="96" height="48"/>
+    <g id="ticks"></g>
+  </svg>
+  <p class="name">Cartowolf</p>
+  <p class="tagline">Tokens, basemap flavors and data colour for map applications, checked for contrast and colour-blind readers.</p>
+</div>
+<script>
+  var ticks = document.getElementById("ticks");
+  for (var x = 528; x <= 912; x += 48) {
+    for (var y = 48; y <= 240; y += 48) {
+      var p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      p.setAttribute("class", "tick");
+      p.setAttribute("d", "M" + (x - 5) + " " + y + "h10M" + x + " " + (y - 5) + "v10");
+      ticks.appendChild(p);
+    }
+  }
+</script>

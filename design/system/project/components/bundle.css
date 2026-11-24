@@ -1,0 +1,433 @@
+/*
+ * Cartowolf components. Classes only: they work in plain HTML, React, or any framework.
+ * Every colour, size and radius is a token from tokens.css. Font families fall back to the
+ * design-system page's own variable names so the same sheet renders there.
+ */
+
+.cw-button,
+.cw-badge,
+.cw-control,
+.cw-legend,
+.cw-place-card,
+.cw-sheet,
+.cw-marker {
+  box-sizing: border-box;
+  font-family: var(--cw-font-sans, var(--font-sans));
+}
+
+.cw-button *,
+.cw-control *,
+.cw-legend *,
+.cw-place-card *,
+.cw-sheet * {
+  box-sizing: border-box;
+}
+
+/* The focus ring, shared by every interactive part. */
+.cw-button:focus-visible,
+.cw-control__button:focus-visible,
+.cw-marker:focus-visible,
+.cw-sheet__grabber:focus-visible {
+  outline: var(--cw-stroke-casing) solid var(--cw-focus);
+  outline-offset: var(--cw-stroke-casing);
+}
+
+/* ---------------------------------------------------------------- map */
+
+.cw-map {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--cw-map-land);
+  border-radius: var(--cw-radius-lg);
+}
+
+.cw-map--muted {
+  background: var(--cw-map-muted-land);
+}
+
+/* ---------------------------------------------------------------- button */
+
+.cw-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cw-space-2);
+  min-height: var(--cw-size-control);
+  padding-block: 0;
+  padding-inline: var(--cw-space-4);
+  border: var(--cw-stroke-hairline) solid var(--cw-border-strong);
+  border-radius: var(--cw-radius-md);
+  background: var(--cw-surface-1);
+  color: var(--cw-text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color var(--cw-duration-fast, 120ms) var(--cw-easing-standard, ease);
+}
+
+.cw-button:hover {
+  background: var(--cw-surface-2);
+}
+
+.cw-button--primary {
+  border-color: var(--cw-accent);
+  background: var(--cw-accent);
+  color: var(--cw-text-on-accent);
+}
+
+.cw-button--primary:hover {
+  border-color: var(--cw-accent-hover);
+  background: var(--cw-accent-hover);
+}
+
+.cw-button--danger {
+  border-color: var(--cw-danger);
+  background: var(--cw-danger);
+  color: var(--cw-danger-on);
+}
+
+.cw-button--quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--cw-accent-text);
+}
+
+.cw-button--quiet:hover {
+  background: var(--cw-accent-subtle);
+}
+
+.cw-button:disabled {
+  opacity: var(--cw-opacity-disabled);
+  cursor: not-allowed;
+}
+
+@media (pointer: coarse) {
+  .cw-button {
+    min-height: var(--cw-size-target);
+  }
+}
+
+/* ---------------------------------------------------------------- badge */
+
+.cw-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cw-space-1);
+  padding-block: 2px;
+  padding-inline: var(--cw-space-2);
+  border-radius: var(--cw-radius-pill);
+  background: var(--cw-surface-2);
+  color: var(--cw-text);
+  font-family: var(--cw-font-condensed, var(--font-condensed));
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.cw-badge__dot {
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: var(--cw-radius-pill);
+  background: currentColor;
+}
+
+.cw-badge--accent {
+  background: var(--cw-accent-subtle);
+  color: var(--cw-accent-text);
+}
+
+.cw-badge--danger {
+  background: var(--cw-danger-subtle);
+  color: var(--cw-danger-text);
+}
+
+.cw-badge--warning {
+  background: var(--cw-warning-subtle);
+  color: var(--cw-warning-text);
+}
+
+.cw-badge--success {
+  background: var(--cw-success-subtle);
+  color: var(--cw-success-text);
+}
+
+/* ---------------------------------------------------------------- map control */
+
+.cw-control {
+  display: inline-flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: var(--cw-stroke-hairline) solid var(--cw-border);
+  border-radius: var(--cw-radius-md);
+  background: var(--cw-overlay);
+  box-shadow: var(--cw-shadow-1);
+  backdrop-filter: blur(8px);
+  z-index: var(--cw-z-overlay);
+}
+
+.cw-control__button {
+  display: grid;
+  place-items: center;
+  inline-size: var(--cw-size-control);
+  block-size: var(--cw-size-control);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--cw-text);
+  cursor: pointer;
+}
+
+.cw-control__button + .cw-control__button {
+  border-block-start: var(--cw-stroke-hairline) solid var(--cw-border);
+}
+
+.cw-control__button:hover {
+  background: var(--cw-surface-2);
+}
+
+.cw-control__button[aria-pressed="true"] {
+  background: var(--cw-accent-subtle);
+  color: var(--cw-accent-text);
+}
+
+.cw-control__button svg {
+  inline-size: var(--cw-size-icon);
+  block-size: var(--cw-size-icon);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (pointer: coarse) {
+  .cw-control__button {
+    inline-size: var(--cw-size-target);
+    block-size: var(--cw-size-target);
+  }
+}
+
+/* ---------------------------------------------------------------- marker */
+
+/*
+ * A ring in the data colour around a neutral disc, with a neutral casing outside.
+ * The initial is text on the disc, so it stays readable whatever the data colour.
+ * Set the colour with --cw-marker-color, for example var(--cw-data-cat-2).
+ */
+.cw-marker {
+  --cw-marker-color: var(--cw-data-cat-1);
+  display: inline-grid;
+  place-items: center;
+  inline-size: var(--cw-size-marker);
+  block-size: var(--cw-size-marker);
+  padding: 0;
+  border: 4px solid var(--cw-marker-color);
+  border-radius: var(--cw-radius-pill);
+  background: var(--cw-data-casing);
+  box-shadow: 0 0 0 var(--cw-stroke-casing) var(--cw-data-casing), var(--cw-shadow-1);
+  color: var(--cw-text);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.cw-marker--dot {
+  inline-size: 14px;
+  block-size: 14px;
+  border: 0;
+  background: var(--cw-marker-color);
+}
+
+.cw-marker--cluster {
+  inline-size: 36px;
+  block-size: 36px;
+  font-family: var(--cw-font-mono, var(--font-mono));
+  font-variant-numeric: tabular-nums;
+}
+
+.cw-marker--selected {
+  box-shadow: 0 0 0 var(--cw-stroke-casing) var(--cw-data-casing), 0 0 0 5px var(--cw-data-selection), var(--cw-shadow-2);
+}
+
+/* ---------------------------------------------------------------- legend */
+
+.cw-legend {
+  display: grid;
+  gap: var(--cw-space-2);
+  min-inline-size: 168px;
+  padding: var(--cw-space-3);
+  border: var(--cw-stroke-hairline) solid var(--cw-border);
+  border-radius: var(--cw-radius-md);
+  background: var(--cw-overlay);
+  box-shadow: var(--cw-shadow-1);
+  backdrop-filter: blur(8px);
+  color: var(--cw-text);
+  z-index: var(--cw-z-overlay);
+}
+
+.cw-legend__title {
+  margin: 0;
+  color: var(--cw-text-muted);
+  font-family: var(--cw-font-condensed, var(--font-condensed));
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.9px;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.cw-legend__list {
+  display: grid;
+  gap: var(--cw-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cw-legend__item {
+  display: flex;
+  align-items: center;
+  gap: var(--cw-space-2);
+  font-family: var(--cw-font-condensed, var(--font-condensed));
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.cw-legend__swatch {
+  flex: none;
+  inline-size: 12px;
+  block-size: 12px;
+  border-radius: var(--cw-radius-sm);
+  background: var(--cw-swatch, var(--cw-data-cat-other));
+  box-shadow: 0 0 0 var(--cw-stroke-hairline) var(--cw-data-casing);
+}
+
+.cw-legend__ramp {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  block-size: 10px;
+  overflow: hidden;
+  border-radius: var(--cw-radius-sm);
+}
+
+.cw-legend__scale {
+  display: flex;
+  justify-content: space-between;
+  color: var(--cw-text-muted);
+  font-family: var(--cw-font-mono, var(--font-mono));
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+}
+
+/* ---------------------------------------------------------------- place card */
+
+.cw-place-card {
+  display: grid;
+  gap: var(--cw-space-3);
+  inline-size: 280px;
+  max-inline-size: 100%;
+  padding: var(--cw-space-4);
+  border: var(--cw-stroke-hairline) solid var(--cw-border);
+  border-radius: var(--cw-radius-lg);
+  background: var(--cw-surface-1);
+  box-shadow: var(--cw-shadow-2);
+  color: var(--cw-text);
+}
+
+.cw-place-card__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.cw-place-card__meta {
+  margin: 0;
+  color: var(--cw-text-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.cw-place-card__rows {
+  display: grid;
+  gap: var(--cw-space-2);
+  margin: 0;
+  padding-block-start: var(--cw-space-3);
+  border-block-start: var(--cw-stroke-hairline) solid var(--cw-border);
+}
+
+.cw-place-card__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--cw-space-3);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.cw-place-card__row dt {
+  display: flex;
+  align-items: center;
+  gap: var(--cw-space-2);
+}
+
+.cw-place-card__row dd {
+  margin: 0;
+  color: var(--cw-text-muted);
+  font-family: var(--cw-font-mono, var(--font-mono));
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cw-place-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cw-space-2);
+}
+
+/* ---------------------------------------------------------------- sheet */
+
+.cw-sheet {
+  display: grid;
+  gap: var(--cw-space-3);
+  padding-block: var(--cw-space-2) var(--cw-space-4);
+  padding-inline: var(--cw-space-4);
+  border: var(--cw-stroke-hairline) solid var(--cw-border);
+  border-block-end: 0;
+  border-start-start-radius: var(--cw-radius-lg);
+  border-start-end-radius: var(--cw-radius-lg);
+  background: var(--cw-surface-1);
+  box-shadow: var(--cw-shadow-3);
+  color: var(--cw-text);
+  z-index: var(--cw-z-sheet);
+}
+
+.cw-sheet__grabber {
+  justify-self: center;
+  inline-size: 36px;
+  block-size: 4px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--cw-radius-pill);
+  background: var(--cw-border-strong);
+  cursor: grab;
+}
+
+.cw-sheet__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cw-button {
+    transition: none;
+  }
+}

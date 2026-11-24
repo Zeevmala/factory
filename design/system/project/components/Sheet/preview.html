@@ -1,0 +1,22 @@
+<!-- @dsCard group="Map" height=392 subtitle="The bottom card on a phone" -->
+<style>
+  body { margin: 0; padding: 16px; background: var(--cw-surface-0); color: var(--cw-text); font-family: var(--cw-font-sans, var(--font-sans)); }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+  .pin { position: absolute; transform: translate(-50%, -50%); }
+  [dir="rtl"] .pin { transform: translate(50%, -50%); }
+</style>
+<div class="cw-map cw-map--muted" id="map" style="height: 360px; max-width: 390px; margin-inline: auto">
+  <button class="cw-marker pin" style="left: 56%; top: 22%; --cw-marker-color: var(--cw-data-cat-1)" aria-label="You">Z</button>
+  <section class="cw-sheet" style="position: absolute; inset-inline: 0; inset-block-end: 0">
+    <button class="cw-sheet__grabber" aria-label="Resize"></button>
+    <h3 class="cw-sheet__title">Waiting for others</h3>
+    <p class="cw-body" style="margin: 0; color: var(--cw-text-muted)">Share the code. The midpoint appears when a second person joins.</p>
+    <div style="display: flex; gap: 8px; align-items: center">
+      <span class="cw-badge cw-badge--accent"><span class="cw-badge__dot"></span>K7M2QX</span>
+      <button class="cw-button cw-button--primary" style="margin-inline-start: auto">Share link</button>
+    </div>
+  </section>
+</div>
+<script>
+  Cartowolf.miniMap(document.getElementById("map"), { emphasis: "muted", labels: false });
+</script>

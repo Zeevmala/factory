@@ -1,0 +1,37 @@
+<!-- @dsCard group="Map" height=300 subtitle="What a selected place shows" -->
+<style>
+  body { margin: 0; padding: 16px; background: var(--cw-surface-0); color: var(--cw-text); font-family: var(--cw-font-sans, var(--font-sans)); }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+  .pin { position: absolute; transform: translate(-50%, -50%); }
+  [dir="rtl"] .pin { transform: translate(50%, -50%); }
+</style>
+<div class="row">
+  <article class="cw-place-card">
+    <div>
+      <h3 class="cw-place-card__title">HaYarkon Park</h3>
+      <p class="cw-place-card__meta">Meeting point · 8 min apart</p>
+    </div>
+    <dl class="cw-place-card__rows">
+      <div class="cw-place-card__row"><dt><span class="cw-marker cw-marker--dot" style="--cw-marker-color: var(--cw-data-cat-1)"></span>You</dt><dd>14 min · <bdi>6.2 km</bdi></dd></div>
+      <div class="cw-place-card__row"><dt><span class="cw-marker cw-marker--dot" style="--cw-marker-color: var(--cw-data-cat-2)"></span>Noa</dt><dd>22 min · <bdi>11.8 km</bdi></dd></div>
+    </dl>
+    <div class="cw-place-card__actions">
+      <button class="cw-button cw-button--primary">Navigate</button>
+      <button class="cw-button cw-button--quiet">Share</button>
+    </div>
+  </article>
+  <article class="cw-place-card" dir="rtl" lang="he">
+    <div>
+      <h3 class="cw-place-card__title">פארק הירקון</h3>
+      <p class="cw-place-card__meta">נקודת מפגש · הפרש של 8 דקות</p>
+    </div>
+    <dl class="cw-place-card__rows">
+      <div class="cw-place-card__row"><dt><span class="cw-marker cw-marker--dot" style="--cw-marker-color: var(--cw-data-cat-1)"></span>את/ה</dt><dd>14 דק׳ · <bdi>6.2 km</bdi></dd></div>
+      <div class="cw-place-card__row"><dt><span class="cw-marker cw-marker--dot" style="--cw-marker-color: var(--cw-data-cat-2)"></span>נועה</dt><dd>22 דק׳ · <bdi>11.8 km</bdi></dd></div>
+    </dl>
+    <div class="cw-place-card__actions">
+      <button class="cw-button cw-button--primary">ניווט</button>
+      <button class="cw-button cw-button--quiet">שיתוף</button>
+    </div>
+  </article>
+</div>
