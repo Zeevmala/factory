@@ -1,0 +1,14 @@
+<!-- @dsCard group="Actions" height=84 -->
+<style>
+  body { margin: 0; padding: 16px; background: var(--cw-surface-0); color: var(--cw-text); font-family: var(--cw-font-sans, var(--font-sans)); }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+  .pin { position: absolute; transform: translate(-50%, -50%); }
+  [dir="rtl"] .pin { transform: translate(50%, -50%); }
+</style>
+<div class="row" style="align-items: center">
+  <button class="cw-button cw-button--primary">Navigate</button>
+  <button class="cw-button">Show everyone</button>
+  <button class="cw-button cw-button--quiet">Share</button>
+  <button class="cw-button cw-button--danger">Leave session</button>
+  <button class="cw-button" disabled>Waiting</button>
+</div>

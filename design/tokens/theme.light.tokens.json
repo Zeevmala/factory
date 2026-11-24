@@ -1,0 +1,712 @@
+{
+  "$description": "Cartowolf light theme: semantic colours, the basemap flavor in two emphases, and the categorical data palette tuned for this theme's basemap.",
+  "color": {
+    "$type": "color",
+    "surface": {
+      "0": {
+        "$value": "{color.neutral.50}",
+        "$description": "Page background."
+      },
+      "1": {
+        "$value": "{color.white}",
+        "$description": "Cards, sheets, place cards."
+      },
+      "2": {
+        "$value": "{color.neutral.100}",
+        "$description": "Inset areas, hover fill on surface-1."
+      }
+    },
+    "overlay": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          1,
+          1,
+          1
+        ],
+        "alpha": 0.92,
+        "hex": "#ffffff"
+      },
+      "$description": "Map controls and legends floating on the map. Translucent so the map reads through; text on it is checked against the darkest and lightest basemap colours."
+    },
+    "text": {
+      "default": {
+        "$value": "{color.neutral.900}",
+        "$description": "Body text on surface-0, surface-1, surface-2 and overlay."
+      },
+      "muted": {
+        "$value": "{color.neutral.700}",
+        "$description": "Secondary text on surface-0, surface-1, surface-2 and overlay."
+      },
+      "on-accent": {
+        "$value": "{color.white}",
+        "$description": "Text and icons on accent."
+      }
+    },
+    "border": {
+      "default": {
+        "$value": "{color.neutral.200}",
+        "$description": "Dividers and card outlines. Decorative: not relied on to find a control."
+      },
+      "strong": {
+        "$value": "{color.neutral.600}",
+        "$description": "Input and control outlines on surface-0, surface-1 and surface-2."
+      }
+    },
+    "accent": {
+      "default": {
+        "$value": "{color.hydro.600}",
+        "$description": "Primary buttons, selected controls."
+      },
+      "hover": {
+        "$value": "{color.hydro.700}",
+        "$description": "Hover and pressed accent."
+      },
+      "subtle": {
+        "$value": "{color.hydro.100}",
+        "$description": "Selected row, info background."
+      },
+      "text": {
+        "$value": "{color.hydro.700}",
+        "$description": "Links and accent-coloured text on surface-0, surface-1 and surface-2."
+      }
+    },
+    "focus": {
+      "$value": "{color.hydro.600}",
+      "$description": "Focus ring, 2px solid, 2px offset. On every surface and on the map via overlay."
+    },
+    "danger": {
+      "default": {
+        "$value": "{color.vermilion.600}",
+        "$description": "Destructive buttons, error markers."
+      },
+      "on": {
+        "$value": "{color.white}",
+        "$description": "Text on danger."
+      },
+      "subtle": {
+        "$value": "{color.vermilion.100}",
+        "$description": "Error banner background."
+      },
+      "text": {
+        "$value": "{color.vermilion.700}",
+        "$description": "Error text on surfaces and on danger-subtle."
+      }
+    },
+    "warning": {
+      "default": {
+        "$value": "{color.amber.600}",
+        "$description": "Warning fills."
+      },
+      "on": {
+        "$value": "{color.white}",
+        "$description": "Text on warning."
+      },
+      "subtle": {
+        "$value": "{color.amber.100}",
+        "$description": "Warning banner background."
+      },
+      "text": {
+        "$value": "{color.amber.700}",
+        "$description": "Warning text on surfaces and on warning-subtle."
+      }
+    },
+    "success": {
+      "default": {
+        "$value": "{color.teal.600}",
+        "$description": "Success fills."
+      },
+      "on": {
+        "$value": "{color.white}",
+        "$description": "Text on success."
+      },
+      "subtle": {
+        "$value": "{color.teal.100}",
+        "$description": "Success banner background."
+      },
+      "text": {
+        "$value": "{color.teal.700}",
+        "$description": "Success text on surfaces and on success-subtle."
+      }
+    }
+  },
+  "shadow": {
+    "1": {
+      "$value": {
+        "color": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0863,
+            0.1098,
+            0.1333
+          ],
+          "alpha": 0.1,
+          "hex": "#161c22"
+        },
+        "offsetX": {
+          "value": 0,
+          "unit": "px"
+        },
+        "offsetY": {
+          "value": 1,
+          "unit": "px"
+        },
+        "blur": {
+          "value": 2,
+          "unit": "px"
+        },
+        "spread": {
+          "value": 0,
+          "unit": "px"
+        }
+      },
+      "$description": "Map controls."
+    },
+    "2": {
+      "$value": {
+        "color": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0863,
+            0.1098,
+            0.1333
+          ],
+          "alpha": 0.14,
+          "hex": "#161c22"
+        },
+        "offsetX": {
+          "value": 0,
+          "unit": "px"
+        },
+        "offsetY": {
+          "value": 4,
+          "unit": "px"
+        },
+        "blur": {
+          "value": 12,
+          "unit": "px"
+        },
+        "spread": {
+          "value": 0,
+          "unit": "px"
+        }
+      },
+      "$description": "Place cards, popovers."
+    },
+    "3": {
+      "$value": {
+        "color": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0863,
+            0.1098,
+            0.1333
+          ],
+          "alpha": 0.2,
+          "hex": "#161c22"
+        },
+        "offsetX": {
+          "value": 0,
+          "unit": "px"
+        },
+        "offsetY": {
+          "value": 12,
+          "unit": "px"
+        },
+        "blur": {
+          "value": 32,
+          "unit": "px"
+        },
+        "spread": {
+          "value": 0,
+          "unit": "px"
+        }
+      },
+      "$description": "Sheets and modals."
+    },
+    "$type": "shadow"
+  },
+  "map": {
+    "$type": "color",
+    "default": {
+      "$description": "Full-colour basemap. Use when the map itself is the content.",
+      "land": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.949,
+            0.9412,
+            0.9176
+          ],
+          "hex": "#f2f0ea"
+        },
+        "$description": "Land."
+      },
+      "water": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.7059,
+            0.8431,
+            0.9412
+          ],
+          "hex": "#b4d7f0"
+        },
+        "$description": "Sea, lakes, rivers."
+      },
+      "greenspace": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8118,
+            0.902,
+            0.8118
+          ],
+          "hex": "#cfe6cf"
+        },
+        "$description": "Parks, forest."
+      },
+      "built": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8941,
+            0.8824,
+            0.851
+          ],
+          "hex": "#e4e1d9"
+        },
+        "$description": "Building footprints."
+      },
+      "road-minor": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            1,
+            1
+          ],
+          "hex": "#ffffff"
+        },
+        "$description": "Local streets."
+      },
+      "road-casing": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8353,
+            0.8235,
+            0.7843
+          ],
+          "hex": "#d5d2c8"
+        },
+        "$description": "Outline under roads."
+      },
+      "road-major": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9843,
+            0.8902,
+            0.7216
+          ],
+          "hex": "#fbe3b8"
+        },
+        "$description": "Arterials."
+      },
+      "road-motorway": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.949,
+            0.749,
+            0.5412
+          ],
+          "hex": "#f2bf8a"
+        },
+        "$description": "Motorways."
+      },
+      "rail": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.6039,
+            0.6314,
+            0.6588
+          ],
+          "hex": "#9aa1a8"
+        },
+        "$description": "Railways."
+      },
+      "boundary": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.7176,
+            0.2471,
+            0.4902
+          ],
+          "hex": "#b73f7d"
+        },
+        "$description": "Administrative boundaries, dashed."
+      },
+      "label": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.149,
+            0.1765,
+            0.2
+          ],
+          "hex": "#262d33"
+        },
+        "$description": "Place and road labels on land, built and greenspace."
+      },
+      "label-halo": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.949,
+            0.9412,
+            0.9176
+          ],
+          "hex": "#f2f0ea"
+        },
+        "$description": "Halo behind labels: the land colour, 1.5px."
+      },
+      "label-water": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0157,
+            0.3686,
+            0.5686
+          ],
+          "hex": "#045e91"
+        },
+        "$description": "Water labels on water. Italic in Latin script."
+      },
+      "poi": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.3176,
+            0.3529,
+            0.3843
+          ],
+          "hex": "#515a62"
+        },
+        "$description": "Point-of-interest icons and their labels on land."
+      }
+    },
+    "muted": {
+      "$description": "Desaturated basemap. Use whenever data or routes are drawn on top: the map recedes so the data leads.",
+      "land": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9451,
+            0.949,
+            0.9529
+          ],
+          "hex": "#f1f2f3"
+        },
+        "$description": "Land."
+      },
+      "water": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8353,
+            0.8706,
+            0.902
+          ],
+          "hex": "#d5dee6"
+        },
+        "$description": "Sea, lakes, rivers."
+      },
+      "greenspace": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8863,
+            0.9137,
+            0.8902
+          ],
+          "hex": "#e2e9e3"
+        },
+        "$description": "Parks, forest."
+      },
+      "built": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.902,
+            0.9098,
+            0.9176
+          ],
+          "hex": "#e6e8ea"
+        },
+        "$description": "Building footprints."
+      },
+      "road-minor": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            1,
+            1
+          ],
+          "hex": "#ffffff"
+        },
+        "$description": "Local streets."
+      },
+      "road-casing": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8627,
+            0.8745,
+            0.8863
+          ],
+          "hex": "#dcdfe2"
+        },
+        "$description": "Outline under roads."
+      },
+      "road-major": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            1,
+            1
+          ],
+          "hex": "#ffffff"
+        },
+        "$description": "Arterials."
+      },
+      "road-motorway": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8902,
+            0.902,
+            0.9137
+          ],
+          "hex": "#e3e6e9"
+        },
+        "$description": "Motorways."
+      },
+      "rail": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.7255,
+            0.749,
+            0.7725
+          ],
+          "hex": "#b9bfc5"
+        },
+        "$description": "Railways."
+      },
+      "boundary": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.4078,
+            0.4392,
+            0.4667
+          ],
+          "hex": "#687077"
+        },
+        "$description": "Administrative boundaries, dashed."
+      },
+      "label": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.3176,
+            0.3529,
+            0.3843
+          ],
+          "hex": "#515a62"
+        },
+        "$description": "Place and road labels on land, built and greenspace."
+      },
+      "label-halo": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.9451,
+            0.949,
+            0.9529
+          ],
+          "hex": "#f1f2f3"
+        },
+        "$description": "Halo behind labels: the land colour, 1.5px."
+      },
+      "label-water": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.2667,
+            0.3529,
+            0.4196
+          ],
+          "hex": "#445a6b"
+        },
+        "$description": "Water labels on water. Italic in Latin script."
+      },
+      "poi": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.4196,
+            0.4549,
+            0.4902
+          ],
+          "hex": "#6b747d"
+        },
+        "$description": "Point-of-interest icons and their labels on land."
+      }
+    }
+  },
+  "data": {
+    "$type": "color",
+    "cat": {
+      "1": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0,
+            0.2627,
+            0.4863
+          ],
+          "hex": "#00437c"
+        },
+        "$description": "Navy."
+      },
+      "2": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8431,
+            0.4118,
+            0
+          ],
+          "hex": "#d76900"
+        },
+        "$description": "Orange."
+      },
+      "3": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0,
+            0.5608,
+            0.4667
+          ],
+          "hex": "#008f77"
+        },
+        "$description": "Sea green."
+      },
+      "4": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.4745,
+            0,
+            0.3059
+          ],
+          "hex": "#79004e"
+        },
+        "$description": "Plum."
+      },
+      "5": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.6863,
+            0.302,
+            0.1216
+          ],
+          "hex": "#af4d1f"
+        },
+        "$description": "Rust."
+      },
+      "6": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0,
+            0.4,
+            0.5451
+          ],
+          "hex": "#00668b"
+        },
+        "$description": "Cerulean."
+      },
+      "$description": "Categorical palette for this theme's basemap. Use in order; six is the limit. Every pair stays apart under protan, deutan and tritan simulation, and each holds 3:1 against land in both emphases.",
+      "other": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.3373,
+            0.3451,
+            0.3529
+          ],
+          "hex": "#56585a"
+        },
+        "$description": "Other, unknown or no data. Never one of the six."
+      }
+    },
+    "casing": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          1,
+          1,
+          1
+        ],
+        "hex": "#ffffff"
+      },
+      "$description": "Outline around every marker and data line, so data separates from any basemap colour beneath it."
+    },
+    "selection": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.7176,
+          0.2471,
+          0.4902
+        ],
+        "hex": "#b73f7d"
+      },
+      "$description": "Selected feature outline, 3px, drawn above labels."
+    },
+    "route": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0314,
+          0.4745,
+          0.7255
+        ],
+        "hex": "#0879b9"
+      },
+      "$description": "Route line."
+    },
+    "route-casing": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          1,
+          1,
+          1
+        ],
+        "hex": "#ffffff"
+      },
+      "$description": "Casing under the route line."
+    }
+  }
+}

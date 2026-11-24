@@ -1,0 +1,21 @@
+<!-- @dsCard group="Map" height=300 subtitle="The flavor in its two emphases" -->
+<style>
+  body { margin: 0; padding: 16px; background: var(--cw-surface-0); color: var(--cw-text); font-family: var(--cw-font-sans, var(--font-sans)); }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+  .pin { position: absolute; transform: translate(-50%, -50%); }
+  [dir="rtl"] .pin { transform: translate(50%, -50%); }
+</style>
+<div class="row">
+  <div style="flex: 1 1 280px; min-width: 0">
+    <div class="cw-map" id="default" style="height: 220px"></div>
+    <p class="cw-small" style="margin: 8px 0 0; color: var(--cw-text-muted)">Default. The map is the content.</p>
+  </div>
+  <div style="flex: 1 1 280px; min-width: 0">
+    <div class="cw-map cw-map--muted" id="muted" style="height: 220px"></div>
+    <p class="cw-small" style="margin: 8px 0 0; color: var(--cw-text-muted)">Muted. Data or routes go on top.</p>
+  </div>
+</div>
+<script>
+  Cartowolf.miniMap(document.getElementById("default"), { emphasis: "default" });
+  Cartowolf.miniMap(document.getElementById("muted"), { emphasis: "muted" });
+</script>

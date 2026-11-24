@@ -1,0 +1,14 @@
+<!-- @dsCard group="Status" height=64 -->
+<style>
+  body { margin: 0; padding: 16px; background: var(--cw-surface-0); color: var(--cw-text); font-family: var(--cw-font-sans, var(--font-sans)); }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+  .pin { position: absolute; transform: translate(-50%, -50%); }
+  [dir="rtl"] .pin { transform: translate(50%, -50%); }
+</style>
+<div class="row" style="align-items: center">
+  <span class="cw-badge">3 people</span>
+  <span class="cw-badge cw-badge--accent"><span class="cw-badge__dot"></span>Live</span>
+  <span class="cw-badge cw-badge--success"><span class="cw-badge__dot"></span>Arrived</span>
+  <span class="cw-badge cw-badge--warning"><span class="cw-badge__dot"></span>Stale 40 s</span>
+  <span class="cw-badge cw-badge--danger"><span class="cw-badge__dot"></span>Offline</span>
+</div>

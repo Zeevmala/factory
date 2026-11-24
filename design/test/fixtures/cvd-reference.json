@@ -1,0 +1,80 @@
+{
+ "source": "DaltonLens-Python Simulator_Machado2009, severity 1.0",
+ "colors": {
+  "#ff0000": {
+   "protan": "#6c5f00",
+   "deutan": "#a39000",
+   "tritan": "#fe000e"
+  },
+  "#00ff00": {
+   "protan": "#fee500",
+   "deutan": "#eed63a",
+   "tritan": "#00f7d8"
+  },
+  "#0000ff": {
+   "protan": "#0058fe",
+   "deutan": "#003dfb",
+   "tritan": "#006b95"
+  },
+  "#e69f00": {
+   "protan": "#b9a200",
+   "deutan": "#c9b310",
+   "tritan": "#fb8b87"
+  },
+  "#56b4e9": {
+   "protan": "#9ab2eb",
+   "deutan": "#86a4e8",
+   "tritan": "#00c1c5"
+  },
+  "#009e73": {
+   "protan": "#9a9170",
+   "deutan": "#8a8575",
+   "tritan": "#009e92"
+  },
+  "#f0e442": {
+   "protan": "#f7db22",
+   "deutan": "#fce34d",
+   "tritan": "#fed4c4"
+  },
+  "#0072b2": {
+   "protan": "#5274b4",
+   "deutan": "#3a66b0",
+   "tritan": "#008189"
+  },
+  "#d55e00": {
+   "protan": "#807000",
+   "deutan": "#9d8b00",
+   "tritan": "#ea4050"
+  },
+  "#cc79a7": {
+   "protan": "#7f8aa8",
+   "deutan": "#9498a4",
+   "tritan": "#d67789"
+  },
+  "#00d4aa": {
+   "protan": "#cdc4a7",
+   "deutan": "#b7b4ac",
+   "tritan": "#00d5c7"
+  },
+  "#6c8cff": {
+   "protan": "#5699fe",
+   "deutan": "#408cfc",
+   "tritan": "#00a5b9"
+  },
+  "#a855f7": {
+   "protan": "#007dfb",
+   "deutan": "#197ff3",
+   "tritan": "#98789f"
+  },
+  "#808080": {
+   "protan": "#808080",
+   "deutan": "#807f80",
+   "tritan": "#808080"
+  },
+  "#1b4f72": {
+   "protan": "#3e4f73",
+   "deutan": "#324771",
+   "tritan": "#00575b"
+  }
+ }
+}
