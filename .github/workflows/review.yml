@@ -25,6 +25,7 @@ permissions: {}
 env:
   FACTORY_REPO: Zeevmala/factory
   FACTORY_REF: ${{ inputs.factory_ref }}
+  FACTORY_BRAIN_REF: main
 
 jobs:
   review:
@@ -80,6 +81,13 @@ jobs:
           # so a PR cannot rewrite its own review.
           git -c advice.detachedHead=false clone -q --depth 1 --branch "$FACTORY_REF" "https://github.com/$FACTORY_REPO.git" "$RUNNER_TEMP/factory-src"
           cp "$RUNNER_TEMP/factory-src/prompts/review.md" .factory-run/prompt.md
+          # Brain is content, read from the factory's default branch so a merged change is live at once;
+          # prompts and workflows stay on the release ref. Falls back to the release ref's copy.
+          if ! { git -C "$RUNNER_TEMP/factory-src" fetch -q --depth 1 origin "$FACTORY_BRAIN_REF" 2>/dev/null \
+                 && git -C "$RUNNER_TEMP/factory-src" archive FETCH_HEAD brain | tar -x -C .factory-run; }; then
+            rm -rf .factory-run/brain
+            if [ -d "$RUNNER_TEMP/factory-src/brain" ]; then cp -r "$RUNNER_TEMP/factory-src/brain" .factory-run/brain; fi
+          fi
           git show "origin/$BASE:.factory/review-checklist.md" > .factory-run/checklist.md 2>/dev/null \
             || echo "No project checklist." > .factory-run/checklist.md
 
@@ -136,6 +144,7 @@ jobs:
           HEAD_REF: ${{ steps.pr.outputs.head }}
           SHA: ${{ steps.pr.outputs.sha }}
           AUTO_REWORK: ${{ vars.FACTORY_AUTO_REWORK || 'false' }}
+          EXEC_FILE: ${{ steps.claude.outputs.execution_file }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail
@@ -152,9 +161,20 @@ jobs:
             esac
           fi
 
+          cost_cents=""; turns=""
+          if [ -n "${EXEC_FILE:-}" ] && [ -s "$EXEC_FILE" ]; then
+            cost_cents=$(jq -r '[.[] | select(.type == "result")] | last | .total_cost_usd // empty | . * 100 | round' "$EXEC_FILE" 2>/dev/null || true)
+            turns=$(jq -r '[.[] | select(.type == "result")] | last | .num_turns // empty' "$EXEC_FILE" 2>/dev/null || true)
+          fi
+          [[ "$cost_cents" =~ ^[0-9]+$ ]] || cost_cents=""
+          [[ "$turns" =~ ^[0-9]+$ ]] || turns=""
+          cost_text=""
+          if [ -n "$cost_cents" ]; then cost_text=" Cost: \$$(printf '%d.%02d' $((cost_cents / 100)) $((cost_cents % 100))) API-equivalent, ${turns:-?} turns."; fi
+
           {
             echo "<!-- factory-review -->"
-            echo "**Factory review of \`${SHA:0:7}\`: $verdict** ([log]($RUN_URL))"
+            echo "<!-- factory-cost cents=${cost_cents:-na} turns=${turns:-na} verdict=$verdict -->"
+            echo "**Factory review of \`${SHA:0:7}\`: $verdict** ([log]($RUN_URL)).$cost_text"
             echo
             if [ "$verdict" = "ERROR" ]; then
               echo "The reviewer produced no usable verdict. Treat this PR as unreviewed."

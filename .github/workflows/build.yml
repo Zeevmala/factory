@@ -37,6 +37,7 @@ permissions: {}
 env:
   FACTORY_REPO: Zeevmala/factory
   FACTORY_REF: ${{ inputs.factory_ref }}
+  FACTORY_BRAIN_REF: main
   REPO: ${{ github.repository }}
   READY_LABEL: ready-for-agent
   WIP_LABEL: agent-in-progress
@@ -227,11 +228,18 @@ jobs:
           mkdir -p .factory-run
           printf '%s\n' ".factory-run/" >> .git/info/exclude
           cp "$RUNNER_TEMP/factory-src/prompts/build.md" .factory-run/prompt.md
+          # Brain is content, read from the factory's default branch so a merged change is live at once;
+          # prompts and workflows stay on the release ref. Falls back to the release ref's copy.
+          if ! { git -C "$RUNNER_TEMP/factory-src" fetch -q --depth 1 origin "$FACTORY_BRAIN_REF" 2>/dev/null \
+                 && git -C "$RUNNER_TEMP/factory-src" archive FETCH_HEAD brain | tar -x -C .factory-run; }; then
+            rm -rf .factory-run/brain
+            if [ -d "$RUNNER_TEMP/factory-src/brain" ]; then cp -r "$RUNNER_TEMP/factory-src/brain" .factory-run/brain; fi
+          fi
 
           {
             echo "# Ticket #$ISSUE"
             echo
-            echo "Attempt $ATTEMPT of $MAX_ATTEMPTS. Earlier attempt on this branch: $REWORK."
+            echo "Today is $(date -u +%F). Attempt $ATTEMPT of $MAX_ATTEMPTS. Earlier attempt on this branch: $REWORK."
             echo
             gh issue view "$ISSUE" --repo "$REPO" --json title,body --jq '"## " + .title + "\n\n" + (.body // "")'
             echo
@@ -344,8 +352,17 @@ jobs:
         id: gate
         env:
           START_SHA: ${{ steps.prep.outputs.start_sha }}
+          EXEC_FILE: ${{ steps.claude.outputs.execution_file }}
         run: |
           set -uo pipefail
+
+          # Cost of the run as the agent runtime reports it (API-equivalent USD, whole cents).
+          # With a subscription token nothing is billed per run; the figure still ranks jobs.
+          cost_cents=""; turns=""
+          if [ -n "${EXEC_FILE:-}" ] && [ -s "$EXEC_FILE" ]; then
+            cost_cents=$(jq -r '[.[] | select(.type == "result")] | last | .total_cost_usd // empty | . * 100 | round' "$EXEC_FILE" 2>/dev/null || true)
+            turns=$(jq -r '[.[] | select(.type == "result")] | last | .num_turns // empty' "$EXEC_FILE" 2>/dev/null || true)
+          fi
 
           # Tracked edits the run forgot to commit are kept; untracked files are only counted.
           if ! git diff --quiet || ! git diff --cached --quiet; then
@@ -376,12 +393,14 @@ jobs:
             echo "gate=$gate"
             echo "protected=$protected"
             echo "untracked=$untracked"
+            echo "cost_cents=$cost_cents"
+            echo "turns=$turns"
           } > "$out/result.txt"
           tail -n 60 "$RUNNER_TEMP/gate.log" 2>/dev/null | head -c 12000 > "$out/gate-tail.log" || true
           if [ -s .factory-run/SUMMARY.md ]; then head -c 6000 .factory-run/SUMMARY.md > "$out/SUMMARY.md"; fi
           if [ -s .factory-run/BLOCKED.md ]; then head -c 4000 .factory-run/BLOCKED.md > "$out/BLOCKED.md"; fi
           if [ "$ahead" != "0" ]; then git bundle create "$out/work.bundle" "origin/$DEFAULT_BRANCH..$BRANCH"; fi
-          echo "gate=$gate ahead=$ahead protected=$protected untracked=$untracked"
+          echo "gate=$gate ahead=$ahead protected=$protected untracked=$untracked cost_cents=${cost_cents:-?} turns=${turns:-?}"
 
       - name: Hand the result to the publish job
         if: always()
@@ -439,6 +458,9 @@ jobs:
 
           val() { grep -E "^$1=[a-z0-9]{1,12}\$" "$run/result.txt" 2>/dev/null | head -n 1 | cut -d= -f2 || true; }
           gate=$(val gate); protected=$(val protected); untracked=$(val untracked)
+          cost_cents=$(val cost_cents); turns=$(val turns)
+          [[ "$cost_cents" =~ ^[0-9]+$ ]] || cost_cents=""
+          [[ "$turns" =~ ^[0-9]+$ ]] || turns=""
 
           note="$RUNNER_TEMP/run-comment.md"
           relabel() { gh issue edit "$ISSUE" --repo "$REPO" --remove-label "$WIP_LABEL" --add-label "$1"; }
@@ -447,7 +469,11 @@ jobs:
 
           {
             echo "<!-- factory-run -->"
-            echo "**Factory run $ATTEMPT/$MAX_ATTEMPTS** ([log]($RUN_URL)): gate \`${gate:-no result}\`."
+            # Machine-readable line for the weekly curate run.
+            echo "<!-- factory-cost cents=${cost_cents:-na} turns=${turns:-na} attempt=$ATTEMPT gate=${gate:-none} -->"
+            cost_text=""
+            if [ -n "$cost_cents" ]; then cost_text=" Cost: \$$(printf '%d.%02d' $((cost_cents / 100)) $((cost_cents % 100))) API-equivalent, ${turns:-?} turns."; fi
+            echo "**Factory run $ATTEMPT/$MAX_ATTEMPTS** ([log]($RUN_URL)): gate \`${gate:-no result}\`.$cost_text"
             if [ "$protected" = "true" ]; then echo; echo "The run edited \`.github/\` or \`.factory/\`; those edits were reverted."; fi
             if [ -n "$untracked" ] && [ "$untracked" != "0" ]; then echo; echo "$untracked untracked file(s) were left uncommitted and dropped."; fi
           } > "$note"
@@ -525,6 +551,23 @@ jobs:
             echo '~~~~text'
             tail -n 15 "$run/gate-tail.log" 2>/dev/null | grep -v '^~~~~' || true
             echo '~~~~'
+            # The brain is append-only: flag any changed or deleted entry for the human who merges.
+            brain_changed=$(git diff --name-only --diff-filter=DMR "origin/$DEFAULT_BRANCH...$tip" -- docs/brain \
+              | grep -v '^docs/brain/DECISIONS.md$' || true)
+            # Removed lines start with "-"; brain entries are list items, so match "--" too but skip the file header.
+            if git diff "origin/$DEFAULT_BRANCH...$tip" -- docs/brain/DECISIONS.md | grep -E '^-' | grep -qvE '^--- (a/|/dev/null)'; then
+              brain_changed=$(printf '%s\n%s' "$brain_changed" "docs/brain/DECISIONS.md (lines removed or edited)" | sed '/^$/d')
+            fi
+            brain_added=$(git diff --name-only --diff-filter=A "origin/$DEFAULT_BRANCH...$tip" -- docs/brain/lessons | wc -l | tr -d ' ')
+            echo
+            echo "## Brain"
+            echo
+            if [ -n "$brain_changed" ]; then
+              echo "**Warning:** this change edits existing brain entries, which are append-only:"
+              while IFS= read -r f; do printf -- "- \`%s\`\n" "$f"; done <<< "$brain_changed"
+            else
+              echo "Append-only check: clean. New lessons: $brain_added."
+            fi
           } > "$body"
 
           PR=$(gh pr list --repo "$REPO" --head "$BRANCH" --state open --json number --jq '.[0].number // empty')

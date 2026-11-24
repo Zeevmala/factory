@@ -313,12 +313,18 @@ if ($useGitHub) {
 
             $hasSecret = Set-FactorySecret -Slug $slug
 
+            # The weekly curate run reads every repo listed here. Published by the next Deploy-Factory.ps1.
+            $projectsFile = Join-Path $kit 'brain/projects.txt'
+            if (Test-Path -LiteralPath $projectsFile) {
+                Add-LineIfMissing -Path $projectsFile -Line $slug
+            }
+
             if ($OpenPr) {
-                $paths = @('.github/workflows/factory.yml', '.factory', 'docs/designs', 'CLAUDE.md', '.gitattributes', '.gitignore')
+                $paths = @('.github/workflows/factory.yml', '.factory', 'docs/designs', 'docs/brain', 'CLAUDE.md', '.gitattributes', '.gitignore')
                 Invoke-Native git (@('add', '--') + $paths) | Out-Null
                 Invoke-Native git @('commit', '-q', '-m', 'Connect this repo to the factory') | Out-Null
                 Invoke-Native git @('push', '-q', '-u', 'origin', $branch, '--force-with-lease') | Out-Null
-                $body = "Adds the thin factory caller, this repo's gate files and the design scaffolding.`n`nBefore merging: make ``.factory/check.sh`` run this project's real checks and pass locally."
+                $body = "Adds the thin factory caller, this repo's gate files, the design scaffolding and the project brain (``docs/brain/``).`n`nBefore merging: make ``.factory/check.sh`` run this project's real checks and pass locally."
                 $url = Invoke-Native gh @('pr', 'create', '--head', $branch, '--title', 'Connect this repo to the factory', '--body', $body)
                 Write-Host "  + pull request: $($url | Select-Object -Last 1)"
             }
@@ -333,6 +339,7 @@ if ($useGitHub) {
 Write-Host ''
 Write-Host 'Still to do by hand:' -ForegroundColor Cyan
 Write-Host '  - Edit .factory/check.sh until it runs this project''s real lint, type and test commands and passes locally.'
+if ($useGitHub) { Write-Host '  - Run ./Deploy-Factory.ps1 so the weekly curate run sees this repo in brain/projects.txt.' }
 if (-not $hasSecret) {
     Write-Host '  - Add a credential: run `claude setup-token`, then `gh secret set CLAUDE_CODE_OAUTH_TOKEN` in this repo'
     Write-Host '    (or set $env:CLAUDE_CODE_OAUTH_TOKEN and re-run this script).'
