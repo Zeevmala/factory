@@ -19,7 +19,7 @@ On a later attempt, something already failed once. Use the `systematic-debugging
 
 1. Read the ticket and the design it points to. State in one or two sentences what will be true when the ticket is done. If you cannot, see "When you are stuck".
 2. Build test-first, one vertical slice at a time. Use the `tdd` skill if it is available. Either way: write a test that fails for the right reason, make it pass with the least code, refactor, commit. A change in behaviour with no test that would have caught its absence is not finished.
-3. Stay inside the ticket. If you find a real problem elsewhere, note it in your summary for a human to file. Do not fix it here.
+3. Stay inside the ticket. If you find a real problem elsewhere, note it in your summary for a human to file. Do not fix it here. Inside the ticket, change only the lines it needs and match the style already there: no tidying, renaming or reformatting of code next to your change. Remove only what your own change orphaned.
 4. Commit as you go with `git add` and `git commit`. Messages say what changed and why. Do not push; the factory pushes and opens the pull request.
 5. Before you stop, run the full set of gate commands once and fix what fails. Use the `verification-before-completion` skill if it is available. Either way, the rule is the same: a claim that something passes needs the command you ran and what it printed, from this run. "Should pass" is not a result.
 

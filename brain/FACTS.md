@@ -19,3 +19,4 @@ Numbers that change (test counts, stars, versions) are not facts. Read them from
 - 2026-11-15: `meet-me-halfway`: a client-side PWA (React, TypeScript, Vite, Mapbox GL JS, Firebase RTDB) that finds a meeting point for up to five participants. App code is in `apps/web`. MIT licence. Supports English and Hebrew with RTL.
 - 2026-11-15: `world-population-globe`: public Node project.
 - 2026-11-15: `solelot`: public static site (`index.html`).
+- 2026-11-25: `solelot`: public static site (plain HTML, CSS, JavaScript and Leaflet; no build step), a Hebrew, right-to-left map of battery collection points in Israel. Location data comes from the MAI corporation's public map. (replaces the 2026-11-15 `solelot` line)

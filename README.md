@@ -13,7 +13,7 @@ prompts/             build.md, review.md, drift.md,     what each run is told
                      curate.md
 brain/               facts, voice, principles,          shared context every run reads
                      decisions, playbooks, digests
-profiles/            node/, python/                     starting gate files per stack
+profiles/            node/, python/, static/            starting gate files per stack
 caller/              files copied into each project
 Deploy-Factory.ps1   publish or update this repository
 Add-FactoryRepo.ps1  connect one project
@@ -96,7 +96,7 @@ Then in Claude Code, once per project: `/mattpocock-skills:setup-matt-pocock-ski
 | --- | --- | --- |
 | meet-me-halfway | public, app in `apps/web` (detected) | Connect first. Make `check.sh` mirror the commands in its existing `web.yml`. |
 | world-population-globe | public, Node, no `test` script | The default gate fails on `npm run test`. Point `check.sh` at `typecheck`, `lint`, `build`, `verify`, or add tests first. |
-| solelot | public, static `index.html`, no manifest | Nothing to gate yet. Skip until it has a test command. |
+| solelot | public, static site, no manifest; has its own `.factory/` gate | Connect with `-Profile static`. Its existing `.factory/` files are kept. |
 | litmap, SLG | private, not inspected | Private repos spend your plan's Actions minutes. SLG has been idle since 2024. |
 | chat-with-national-map, israel-coastline-change | not on GitHub under those names | Run step 3 the day each repo is created. |
 
@@ -154,4 +154,5 @@ Edit this repository, then run `./Deploy-Factory.ps1` again. It pushes `main` an
 | Design and fresh-context review at your desk; drift report | [google/elephant-goldfish-model](https://github.com/google/elephant-goldfish-model) |
 | Read-only agent job with a separate publishing job | pattern from [github/gh-aw](https://github.com/github/gh-aw) |
 | Always / Ask first / Never block in `CLAUDE.md` | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) |
+| Working rules in `PRINCIPLES.md`: state assumptions, nothing speculative, surgical changes, goal as a failing check | Andrej Karpathy's notes on coding agents, as written up in [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) |
 | Shared brain, facts file, append-only dated entries, weekly playbook rewrite, cost per job | Greg Isenberg's "most AI-pilled company" list (items 1–9, 30, 38–41), adapted to a public repo |

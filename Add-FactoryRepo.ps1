@@ -17,8 +17,9 @@
     Path to the local clone. Defaults to the current directory.
 
 .PARAMETER Profile
-    'node' or 'python'. Detected when omitted, together with the app folder in a
-    monorepo (package.json or a Python project file up to two folders down).
+    'node', 'python' or 'static'. Detected when omitted, together with the app
+    folder in a monorepo (package.json or a Python project file up to two folders
+    down). A repository with no manifest and an index.html at its root is 'static'.
 
 .PARAMETER Global
     Also install the two design-desk Claude Code plugins. Needed once per machine.
@@ -41,7 +42,7 @@ param(
     [Parameter(Position = 0)]
     [string]$RepoPath = (Get-Location).Path,
 
-    [ValidateSet('node', 'python')]
+    [ValidateSet('node', 'python', 'static')]
     [string]$Profile,
 
     [switch]$Global,
@@ -104,7 +105,8 @@ function Resolve-FactoryProject {
         Select-Object -First 1
     if (-not $found) {
         if ($Profile) { return @{ Profile = $Profile; AppDir = '.' } }
-        throw "No package.json or Python project file found in $Repo. Pass -Profile node or -Profile python."
+        if (Test-Path -LiteralPath (Join-Path $Repo 'index.html')) { return @{ Profile = 'static'; AppDir = '.' } }
+        throw "No package.json or Python project file found in $Repo. Pass -Profile node, -Profile python or -Profile static."
     }
     $dir = [System.IO.Path]::GetRelativePath($Repo, $found.DirectoryName).Replace('\', '/')
     return @{ Profile = $markers[$found.Name]; AppDir = $dir }

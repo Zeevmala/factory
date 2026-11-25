@@ -8,6 +8,13 @@ How you decide. A run that faces a choice the ticket and the design do not settl
 - 2026-11-15: Challenge weak architecture. A reviewer that sees a design flaw names it even when the ticket did not ask.
 - 2026-11-15: Small and boring beats clever. One module, one job.
 
+## Working rules
+
+- 2026-11-25: Say what you assume before you build on it. If two readings of a ticket give different behaviour, ask; do not pick one silently.
+- 2026-11-25: Nothing speculative. No feature, option or abstraction the ticket did not ask for. If 50 lines solve it, 200 lines are a finding.
+- 2026-11-25: Surgical changes. Touch only what the ticket needs and match the style already there. Do not tidy, rename or reformat code next to the change; report it. Remove only what your own change orphaned.
+- 2026-11-25: Turn the goal into a check that fails now, then loop until it passes. "Fix the bug" means a test that reproduces it, then the fix.
+
 ## Code
 
 - 2026-11-15: Code is complete and runnable. No placeholders, no "rest unchanged", no truncated files.
