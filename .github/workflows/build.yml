@@ -228,6 +228,14 @@ jobs:
           mkdir -p .factory-run
           printf '%s\n' ".factory-run/" >> .git/info/exclude
           cp "$RUNNER_TEMP/factory-src/prompts/build.md" .factory-run/prompt.md
+          # The design system's brand book and component notes, for changes to an interface or a map.
+          if [ -f "$RUNNER_TEMP/factory-src/design/system/project/README.md" ]; then
+            mkdir -p .factory-run/design/components
+            cp "$RUNNER_TEMP/factory-src/design/system/project/README.md" .factory-run/design/README.md
+            for doc in "$RUNNER_TEMP"/factory-src/design/system/project/components/*/README.md; do
+              if [ -f "$doc" ]; then cp "$doc" ".factory-run/design/components/$(basename "$(dirname "$doc")").md"; fi
+            done
+          fi
           # Brain is content, read from the factory's default branch so a merged change is live at once;
           # prompts and workflows stay on the release ref. Falls back to the release ref's copy.
           if ! { git -C "$RUNNER_TEMP/factory-src" fetch -q --depth 1 origin "$FACTORY_BRAIN_REF" 2>/dev/null \
@@ -370,6 +378,11 @@ jobs:
             git commit -q -m "factory: uncommitted edits left by the run" || true
           fi
           untracked=$(git ls-files --others --exclude-standard | wc -l | tr -d ' ')
+          # The gate must judge what will be pushed. Untracked files are not in the bundle, so they
+          # leave the tree first: code that only works with a file the run forgot to commit fails here.
+          if [ "$untracked" != "0" ]; then
+            git stash push -q --include-untracked -m "factory: untracked files left by the run" || true
+          fi
 
           # The run may not change the factory config or CI. Undo it if it did.
           protected=false

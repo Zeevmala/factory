@@ -9,10 +9,13 @@ Every run reads a shared brain (`brain/`: facts, voice, principles, decisions, p
 ```
 .github/workflows/   build.yml, review.yml, drift.yml   reusable workflows (all the logic)
                      curate.yml                         weekly loop; runs in this repo only
+                     design.yml                         checks the design system on every change to it
 prompts/             build.md, review.md, drift.md,     what each run is told
                      curate.md
 brain/               facts, voice, principles,          shared context every run reads
                      decisions, playbooks, digests
+design/              Cartowolf: tokens, basemap         the design system for map apps; see design/README.md
+                     flavors, data ramps, layer recipes
 profiles/            node/, python/                     starting gate files per stack
 caller/              files copied into each project
 Deploy-Factory.ps1   publish or update this repository
@@ -47,7 +50,7 @@ curate PR: digests/<week>.md + playbooks  ◀── Friday curate run reads ever
                                                 merged / rejected / to-human, cost per run
 ```
 
-- **What runs read.** Build runs read `FACTS.md`, `PRINCIPLES.md`, `STACK.md`, `playbooks/build.md`, and `VOICE.md` before writing prose; reviewers read `PRINCIPLES.md`, `STACK.md`, `FACTS.md` and `playbooks/review.md`. Build runs also search past decisions and lessons for the ticket's key terms before they design anything. Runs read `brain/` from `main`, so a merged brain change is live at once; prompts and workflows still release through `v1`.
+- **What runs read.** Build runs read `FACTS.md`, `PRINCIPLES.md`, `STACK.md`, `playbooks/build.md`, and `VOICE.md` before writing prose; reviewers read `PRINCIPLES.md`, `STACK.md`, `FACTS.md` and `playbooks/review.md`. Build runs also search past decisions and lessons for the ticket's key terms before they design anything. Runs read `brain/` from `main`, so a merged brain change is live at once; prompts and workflows still release through `v1`. Both also get the design system's brand book and component notes in `.factory-run/design/`, from `v1`, for tickets that touch an interface or a map.
 - **Facts file.** A run may state a fact about you or a project only if it is in `FACTS.md` or provable from the code. The reviewer blocks unsupported claims.
 - **Append-only, dated.** Lessons are one file each with the date in the name, so concurrent PRs never conflict, and start with YAML frontmatter (`date`, `ticket`, `tags`) so they can be searched by tag and opened in Obsidian. A build PR that edits or deletes an existing brain entry gets a warning in its description, and the reviewer blocks it.
 - **Cost per job.** Every run and review comment carries its cost (API-equivalent USD) and turn count, plus a machine-readable `<!-- factory-cost -->` line. The digest totals them per project and per merged ticket.
@@ -123,7 +126,7 @@ Then in Claude Code, once per project: `/mattpocock-skills:setup-matt-pocock-ski
 1. **The agent's token is read-only.** It cannot push, comment or label. Its work leaves the runner as a git bundle.
 2. **A clean runner publishes.** It refuses the bundle if it touches `.github/` or `.factory/`, adds a file over the size cap, or trips the secret scan (gitleaks, checksum-pinned; fails closed). It never checks out or runs the code.
 3. **Deny rules** stop the agent editing `.github/` and `.factory/` or reading `.env`, key files and `secrets/`, whatever a ticket says.
-4. **The gate** is the default branch's `check.sh`. The agent cannot change it.
+4. **The gate** is the default branch's `check.sh`. The agent cannot change it. It runs on the committed tree: files the run left untracked are moved out first, because they are not in the bundle.
 5. **The reviewer** runs on another machine and never saw the build. It can write one report.
 6. **You merge.** Nothing in the factory approves or merges. Add a branch rule on `main` that requires a pull request, so this holds even if a workflow is changed later.
 
@@ -134,6 +137,8 @@ Limits: the secret scan matches known key formats, not every possible secret. Co
 Verified here: workflows pass `actionlint` (callers and reusable workflows together) and `shellcheck`. Every shell step ran against scratch repositories: ticket selection, context building, pinned-skill loading, the gate, bundle hand-off, and publishing in eight outcomes, including a forged bundle that changed a workflow, a planted secret, a 6 MB file, a dead build job and a tampered result file (all held or retried as intended). Both scripts ran under PowerShell 7.4 against stand-ins for `gh`, on a monorepo, a Python repo, a static site and a dirty tree.
 
 The brain and loop were checked the same way: the curate gather step against a scratch project (a lesson from this week collected, an old one skipped, a malformed `projects.txt` line and an unreadable repo skipped); the curate publish check against nine patches (accepted only the plain Markdown one under the allowed folders; rejected a symlink, binary, executable, rename, nested path, non-Markdown file, a forged edit to a prompt, and a `..` path); the brain fetch from `main` with fallback to `v1`; the append-only warning on five branches; cost parsing; and both PowerShell scripts under 7.4 against a stand-in `gh`.
+
+Added since, and checked the same way: the gate's handling of untracked files against three scratch repositories (code that needs a file the run never committed now fails the gate, where it passed before; a clean run and a run with a stray note pass), the step that copies the design brand book into a run (with and without a `design/` folder in the factory checkout), and `actionlint` 1.7.12 with `shellcheck` 0.11.0 over all six workflow files.
 
 Not verified, because it needs GitHub: a live run. In particular, the cross-repository workflow call, the one-build-at-a-time lock on the caller job, the action running on a read-only token, and the deny rules inside the action. Step 4 is the test.
 
