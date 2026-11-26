@@ -163,6 +163,21 @@ export function oklchToHex({ L, C, h }) {
 }
 
 /**
+ * Mix two colours in OKLab, where equal steps look equal. `t` 0 gives `a`, 1 gives `b`.
+ * The straight line between two sRGB colours can leave the gamut slightly; the result is clamped.
+ * @param {string} a
+ * @param {string} b
+ * @param {number} t 0..1
+ * @returns {string}
+ */
+export function mix(a, b, t) {
+  const p = hexToOklab(a);
+  const q = hexToOklab(b);
+  const linear = oklabToLinear({ L: p.L + (q.L - p.L) * t, a: p.a + (q.a - p.a) * t, b: p.b + (q.b - p.b) * t });
+  return srgbToHex(/** @type {Triplet} */ (linear.map((v) => toEncoded(Math.min(1, Math.max(0, v))))));
+}
+
+/**
  * Euclidean distance in OKLab, the perceptual difference between two colours.
  * Roughly: below 0.02 is hard to see, above 0.10 is plainly different.
  * @param {string} a

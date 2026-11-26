@@ -1,0 +1,28 @@
+{
+  "name": "cartowolf",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Design system for map applications: interface tokens, basemap flavors and data colour, checked for contrast and colour-blind readers.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    "./tokens.css": "./dist/tokens.css",
+    "./fonts.css": "./dist/fonts.css",
+    "./components.css": "./system/project/components/bundle.css",
+    "./tokens.json": "./dist/tokens.json",
+    "./ramps.json": "./dist/ramps.json",
+    "./mapbox-standard.json": "./dist/mapbox-standard.json",
+    "./protomaps-flavors.json": "./dist/protomaps-flavors.json",
+    "./color": "./lib/color.mjs",
+    "./ramps": "./lib/ramps.mjs",
+    "./classify": "./lib/classify.mjs",
+    "./maplibre": "./lib/maplibre.mjs"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/build.mjs --check",
+    "test": "node --test test/*.test.mjs"
+  }
+}

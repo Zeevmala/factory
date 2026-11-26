@@ -32,13 +32,17 @@ Never borrow across layers. A basemap colour is not a button colour; a data colo
 ## Data on the map
 
 - **Categories:** `--cw-data-cat-1` to `-6`, used in order. Six is the limit; everything else is `--cw-data-cat-other`. Every pair of the six stays distinct under protan, deutan and tritan simulation.
-- **Amounts:** a sequential ramp, `--cw-data-seq-hydro-1` to `-7` (single hue) or `--cw-data-seq-emrld-1` to `-7` (wider range). Light is low.
-- **Change around a midpoint:** a diverging ramp, `--cw-data-div-earth-1` to `-7` or `--cw-data-div-geyser-1` to `-7`. The middle step is the midpoint; name its value in the legend.
-- Seven classes at most. Classed colours read better than a continuous gradient; use one only for rasters.
+- **Amounts:** a sequential ramp, `--cw-data-seq-hydro-1` to `-7` (single hue) or `--cw-data-seq-emrld-1` to `-7` (wider range). Step 1 is low. Low is the step nearest the basemap, so it recedes: light on the light theme, dark on the dark theme. The tokens already run the right way in each theme; never reverse a ramp by hand.
+- **Change around a midpoint:** a diverging ramp, `--cw-data-div-earth-1` to `-7` or `--cw-data-div-geyser-1` to `-7`. Step 4 is the midpoint and recedes into the map; both ends stand off it equally. Name the midpoint's value in the legend. Use a diverging ramp only when the data has a real midpoint (zero, a target, an average).
+- **Classes:** three to seven. Take the colours for a class count from `dist/ramps.json`, never the first few steps of the seven. An even count of a diverging ramp has no midpoint class.
+- **Breaks:** natural breaks for one map of one place; quantiles when every class must hold features; equal intervals when the reader needs round, comparable steps; fixed breaks you choose when two maps will be compared. `lib/classify.mjs` computes the first three. Print the break values in the legend.
+- **Missing data** is not zero and is not grey. Draw a polygon with no value hollow with a dashed outline in `--cw-data-cat-other`, and give it a legend entry. Grey looks like a teal or green class to red-green colour-blind readers.
+- **Continuous colour** only for rasters and heatmaps, from the `stops` in `dist/ramps.json`. Classed colours read better everywhere else.
+- **In a map style,** build layers with `lib/maplibre.mjs` (`choroplethLayers`, `lineLayers`, `pointLayers`, `routeLayers`, `selectionLayers`). They apply the casing, opacity and missing-data rules below, so a hand-written paint block is a finding.
 - **Casing:** every marker and data line has an outline in `--cw-data-casing`, `--cw-stroke-casing` wide. It is what separates data from whatever basemap colour lies beneath.
-- **Areas:** fill at `--cw-opacity-fill-area` with an opaque outline in the same colour, so the basemap reads through.
+- **Areas:** fill at `--cw-opacity-fill-area` with an opaque outline in the same colour, `--cw-stroke-area-outline` wide, so the basemap reads through.
 - **Routes:** `--cw-data-route`, `--cw-stroke-route` wide, over `--cw-data-route-casing`, `--cw-stroke-route-casing` wide.
-- **Selection:** an outline in `--cw-data-selection`, drawn above labels. One selection at a time.
+- **Selection:** an outline in `--cw-data-selection`, `--cw-stroke-selection` wide, drawn above labels. One selection at a time.
 - Colour is never the only cue. People carry an initial, categories a legend, states a word.
 - Stacking order, bottom to top: basemap fills, data areas, roads, data lines, labels, markers, selection.
 
@@ -82,4 +86,4 @@ Never borrow across layers. A basemap colour is not a button colour; a data colo
 
 ## Attribution
 
-The `emrld`, `geyser` and `earth` ramps are CARTOColors, licensed CC BY 4.0: credit CARTO where a map using them is published. IBM Plex is licensed under the SIL Open Font License 1.1.
+The `emrld`, `geyser` and `earth` ramps are CARTOColors, licensed CC BY 4.0: credit CARTO where a map using them is published. The dark theme's `geyser` and `earth` are adapted from them (same end hues, dark midpoint) and carry the same credit. IBM Plex is licensed under the SIL Open Font License 1.1.

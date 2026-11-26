@@ -7,6 +7,8 @@
  *   dist/tokens.json            resolved values per theme, for scripts and tests
  *   dist/mapbox-standard.json   basemap config per theme and emphasis
  *   dist/protomaps-flavors.json Flavor objects per theme and emphasis
+ *   dist/ramps.json             every data ramp per theme, at 3 to 7 classes and as continuous stops
+ *   docs/index.html             the specimen page: the system in both themes with its measured numbers
  *   system/project/tokens.json  the same tokens in the shape the design-system page reads
  *
  * Usage:
@@ -19,7 +21,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { hexToSrgb } from "../lib/color.mjs";
 import { EMPHASES, toMapboxStandard, toProtomapsFlavor } from "../lib/adapters.mjs";
-import { DESIGN_ROOT, PREFIX, THEMES, cssEntries, cssName, cssValue, loadTheme, resolve } from "../lib/tokens.mjs";
+import { CLASS_COUNTS, RAMPS, resample, stops } from "../lib/ramps.mjs";
+import { DESIGN_ROOT, PREFIX, THEMES, cssEntries, cssName, cssValue, hexOf, loadTheme, resolve } from "../lib/tokens.mjs";
+import { rampOf, specimen } from "./specimen.mjs";
 
 const BANNER = "Cartowolf — generated from design/tokens by design/scripts/build.mjs. Do not edit.";
 
@@ -154,7 +158,32 @@ function build() {
   out.set("dist/mapbox-standard.json", `${JSON.stringify(perFlavor((theme, emphasis) => toMapboxStandard(themes[theme], theme, emphasis)), null, 2)}\n`);
   out.set("dist/protomaps-flavors.json", `${JSON.stringify(perFlavor((theme, emphasis) => toProtomapsFlavor(themes[theme], emphasis)), null, 2)}\n`);
 
+  out.set("dist/ramps.json", `${JSON.stringify(Object.fromEntries(THEMES.map((theme) => [theme, rampsOf(themes[theme])])), null, 2)}\n`);
+  out.set("docs/index.html", specimen(themes, BANNER));
+
   out.set("system/project/tokens.json", `${JSON.stringify(systemTokens(themes, entries), null, 2)}\n`);
+  return out;
+}
+
+/**
+ * Every data palette of one theme, ready to hand to a map: the categorical
+ * colours, and each ramp cut to every class count and as continuous stops.
+ * @param {import("../lib/tokens.mjs").TokenMap} tokens
+ * @returns {Record<string, unknown>}
+ */
+function rampsOf(tokens) {
+  /** @type {Record<string, unknown>} */
+  const out = {
+    cat: { colors: [1, 2, 3, 4, 5, 6].map((n) => hexOf(tokens, `data.cat.${n}`)), other: hexOf(tokens, "data.cat.other") },
+  };
+  for (const [kind, names] of Object.entries(RAMPS)) {
+    out[kind] = Object.fromEntries(
+      names.map((name) => {
+        const anchors = rampOf(tokens, kind, name);
+        return [name, { classes: Object.fromEntries(CLASS_COUNTS.map((n) => [n, resample(kind, anchors, n)])), stops: stops(anchors) }];
+      }),
+    );
+  }
   return out;
 }
 

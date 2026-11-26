@@ -3,7 +3,9 @@
 | What | Where | Licence |
 | --- | --- | --- |
 | IBM Plex Sans, Sans Hebrew, Sans Condensed, Mono (font files from Fontsource 5.3.0) | `system/project/fonts/` | SIL Open Font License 1.1, see `licenses/IBM-Plex-OFL-1.1.txt` |
-| CARTOColors Emrld, Geyser and Earth palettes | `tokens/core.tokens.json`, `data.seq.emrld`, `data.div.geyser`, `data.div.earth` | CC BY 4.0, © CARTO |
+| CARTOColors Emrld, Geyser and Earth palettes | `tokens/core.tokens.json`, `ramp.seq.emrld`, `ramp.div.geyser`, `ramp.div.earth` | CC BY 4.0, © CARTO |
+| Dark-midpoint adaptations of Geyser and Earth (end hues kept, lightness and chroma redrawn) | `tokens/core.tokens.json`, `ramp.div.geyser-night`, `ramp.div.earth-night` | Adapted from CARTOColors, CC BY 4.0, © CARTO; changes are ours |
+| Natural-breaks classification | `lib/classify.mjs` | Our implementation of the method in Fisher, "On Grouping for Maximum Homogeneity", 1958, and Jenks, 1967 |
 | Colour-vision-deficiency matrices | `lib/color.mjs` | Machado, Oliveira and Fernandes, "A Physiologically-based Model for Simulation of Color Vision Deficiency", 2009 |
 | OKLab colour space | `lib/color.mjs` | Björn Ottosson, 2020, public domain / MIT |
 | Reference values for the simulation test | `test/fixtures/cvd-reference.json` | Generated with DaltonLens-Python |

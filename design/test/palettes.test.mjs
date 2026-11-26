@@ -5,14 +5,19 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { deltaE, hexToOklch, worstCaseDeltaE } from "../lib/color.mjs";
-import { FLAVOR_KEYS } from "../lib/adapters.mjs";
+import { contrast, deltaE, hexToOklch, worstCaseDeltaE } from "../lib/color.mjs";
+import { EMPHASES, FLAVOR_KEYS } from "../lib/adapters.mjs";
+import { CLASS_COUNTS, RAMPS, resample } from "../lib/ramps.mjs";
 import { THEMES, hexOf, loadTheme } from "../lib/tokens.mjs";
 
 /** Smallest OKLab distance at which two categories still read as different marks. */
 const CATEGORY_GAP = 0.08;
-/** Smallest OKLab distance between neighbouring ramp steps. */
+/** Smallest OKLab distance between neighbouring ramp steps, and between the two arms of a diverging ramp. */
 const STEP_GAP = 0.035;
+/** Smallest OKLab distance between the lowest class and the land it is drawn on: below this a polygon cannot be seen. */
+const VISIBLE = 0.02;
+/** Largest hue difference, in degrees, between the light and the dark version of a diverging ramp's ends. */
+const HUE_DRIFT = 25;
 const STEPS = [1, 2, 3, 4, 5, 6, 7];
 
 for (const theme of THEMES) {
@@ -59,31 +64,94 @@ for (const theme of THEMES) {
   });
 }
 
-const tokens = loadTheme("light");
-const hex = (/** @type {string} */ key) => hexOf(tokens, key);
+/**
+ * Every neighbouring pair that is too close under normal or simulated vision.
+ * @param {string[]} colours
+ * @returns {string[]}
+ */
+function closeNeighbours(colours) {
+  const close = [];
+  for (let i = 1; i < colours.length; i += 1) {
+    const worst = worstCaseDeltaE(colours[i], colours[i - 1]);
+    if (worst.value < STEP_GAP) close.push(`steps ${i} and ${i + 1}: ${worst.value.toFixed(3)} under ${worst.vision}`);
+  }
+  return close;
+}
 
-for (const ramp of ["hydro", "emrld"]) {
-  test(`sequential ${ramp}: lightness falls step by step and neighbours stay distinct`, () => {
-    const colours = STEPS.map((n) => hex(`data.seq.${ramp}.${n}`));
-    const lightness = colours.map((c) => hexToOklch(c).L);
-    for (let i = 1; i < colours.length; i += 1) {
-      assert.ok(lightness[i] < lightness[i - 1], `step ${i + 1} is not darker than step ${i}`);
-      const worst = worstCaseDeltaE(colours[i], colours[i - 1]);
-      assert.ok(worst.value >= STEP_GAP, `steps ${i} and ${i + 1}: ${worst.value.toFixed(3)} under ${worst.vision}`);
+/**
+ * Whether a list of numbers rises at every step.
+ * @param {number[]} values
+ * @returns {boolean}
+ */
+const rises = (values) => values.every((v, i) => i === 0 || v > values[i - 1]);
+
+for (const theme of THEMES) {
+  const tokens = loadTheme(theme);
+  const hex = (/** @type {string} */ key) => hexOf(tokens, key);
+  const ramp = (/** @type {string} */ kind, /** @type {string} */ name) => STEPS.map((n) => hex(`data.${kind}.${name}.${n}`));
+  const lands = EMPHASES.map((emphasis) => hex(`map.${emphasis}.land`));
+
+  for (const name of RAMPS.seq) {
+    test(`${theme}: sequential ${name} runs from the basemap outwards, at every class count`, () => {
+      const anchors = ramp("seq", name);
+      for (const n of CLASS_COUNTS) {
+        const colours = resample("seq", anchors, n);
+        assert.equal(colours.length, n);
+        assert.deepEqual(closeNeighbours(colours), [], `${n} classes`);
+        for (const land of lands) {
+          // Low values recede into the map and high values stand off it, whichever theme this is.
+          assert.ok(rises(colours.map((c) => contrast(c, land))), `${n} classes: contrast against land ${land} does not rise step by step`);
+          assert.ok(deltaE(colours[0], land) >= VISIBLE, `${n} classes: the lowest class cannot be seen on land ${land}`);
+        }
+      }
+      assert.deepEqual(resample("seq", anchors, 7), anchors, "seven classes are the tokens themselves");
+    });
+  }
+
+  for (const name of RAMPS.div) {
+    test(`${theme}: diverging ${name} recedes at the midpoint and stands off at both ends, at every class count`, () => {
+      const anchors = ramp("div", name);
+      for (const n of CLASS_COUNTS) {
+        const colours = resample("div", anchors, n);
+        assert.equal(colours.length, n);
+        assert.deepEqual(closeNeighbours(colours), [], `${n} classes`);
+        const half = Math.floor(n / 2);
+        if (n % 2 === 1) assert.equal(colours[half], anchors[3], `${n} classes keeps the midpoint`);
+        for (const land of lands) {
+          const against = colours.map((c) => contrast(c, land));
+          assert.ok(rises(against.slice(0, n % 2 === 1 ? half + 1 : half).reverse()), `${n} classes: the lower arm does not stand off land ${land} step by step`);
+          assert.ok(rises(against.slice(half)), `${n} classes: the upper arm does not stand off land ${land} step by step`);
+        }
+        // The two arms must not be confused with each other: compare each step with its mirror.
+        for (let i = 0; i < half; i += 1) {
+          const worst = worstCaseDeltaE(colours[i], colours[n - 1 - i]);
+          assert.ok(worst.value >= STEP_GAP, `${n} classes: step ${i + 1} and its mirror are ${worst.value.toFixed(3)} apart under ${worst.vision}`);
+        }
+      }
+      assert.deepEqual(resample("div", anchors, 7), anchors, "seven classes are the tokens themselves");
+      assert.deepEqual(resample("div", anchors, 6), [...anchors.slice(0, 3), ...anchors.slice(4)], "six classes are the tokens without the midpoint");
+      const ends = worstCaseDeltaE(anchors[0], anchors[6]);
+      assert.ok(ends.value >= 0.1, `ends: ${ends.value.toFixed(3)} under ${ends.vision}`);
+    });
+  }
+}
+
+for (const name of RAMPS.div) {
+  test(`diverging ${name}: each end keeps its hue between the light and the dark theme`, () => {
+    const [light, dark] = ["light", "dark"].map((theme) => loadTheme(/** @type {"light" | "dark"} */ (theme)));
+    for (const step of [1, 7]) {
+      const a = hexToOklch(hexOf(light, `data.div.${name}.${step}`)).h;
+      const b = hexToOklch(hexOf(dark, `data.div.${name}.${step}`)).h;
+      const drift = Math.min(Math.abs(a - b), 360 - Math.abs(a - b));
+      assert.ok(drift <= HUE_DRIFT, `step ${step}: hue ${a.toFixed(0)} in light, ${b.toFixed(0)} in dark`);
     }
   });
 }
 
-for (const ramp of ["geyser", "earth"]) {
-  test(`diverging ${ramp}: light middle, dark ends, ends distinct for colour-blind readers`, () => {
-    const colours = STEPS.map((n) => hex(`data.div.${ramp}.${n}`));
-    const lightness = colours.map((c) => hexToOklch(c).L);
-    assert.equal(Math.max(...lightness), lightness[3], "the midpoint is not the lightest step");
-    for (let i = 1; i <= 3; i += 1) {
-      assert.ok(lightness[3 - i] < lightness[4 - i], `left arm does not darken at step ${4 - i}`);
-      assert.ok(lightness[3 + i] < lightness[2 + i], `right arm does not darken at step ${4 + i}`);
-    }
-    const ends = worstCaseDeltaE(colours[0], colours[6]);
-    assert.ok(ends.value >= 0.1, `ends: ${ends.value.toFixed(3)} under ${ends.vision}`);
-  });
-}
+test("resample refuses a ramp it cannot cut", () => {
+  assert.throws(() => resample("seq", ["#000000", "#ffffff"], 1), /at least 2 classes/);
+  assert.throws(() => resample("seq", ["#000000"], 3), /at least 2 anchor/);
+  assert.throws(() => resample("div", ["#000000", "#888888", "#aaaaaa", "#ffffff"], 4), /odd number of anchors/);
+  assert.deepEqual(resample("seq", ["#000000", "#ffffff"], 2), ["#000000", "#ffffff"]);
+  assert.deepEqual(resample("div", ["#000000", "#888888", "#ffffff"], 2), ["#000000", "#ffffff"], "two classes of a diverging ramp are its ends");
+});

@@ -11,6 +11,7 @@ import path from "node:path";
 import test from "node:test";
 import { DEFICIENCIES, contrast, deltaE, hexToOklab, oklchToHex, hexToOklch, simulate } from "../lib/color.mjs";
 import { EMPHASES, PROTOMAPS_FLAVOR_KEYS, toMapboxStandard, toProtomapsFlavor } from "../lib/adapters.mjs";
+import { CLASS_COUNTS, RAMPS } from "../lib/ramps.mjs";
 import { DESIGN_ROOT, THEMES, loadTheme } from "../lib/tokens.mjs";
 import { check, literalsIn } from "../scripts/check-colors.mjs";
 
@@ -42,7 +43,7 @@ test("generated outputs are current", () => {
 
 test("components and previews only use tokens that exist", () => {
   const defined = new Set(Object.keys(JSON.parse(read("dist/tokens.json")).light));
-  const files = ["system/project/components/bundle.css", "system/project/components/bundle.js"];
+  const files = ["system/project/components/bundle.css", "system/project/components/bundle.js", "docs/index.html"];
   for (const dir of fs.readdirSync(path.join(DESIGN_ROOT, "system/project/components"), { withFileTypes: true })) {
     if (dir.isDirectory()) files.push(`system/project/components/${dir.name}/preview.html`);
   }
@@ -103,6 +104,41 @@ test("Mapbox Standard adapter follows the theme and the emphasis", () => {
   assert.equal(light.theme, "default");
   for (const key of ["colorLand", "colorWater", "colorGreenspace", "colorRoads", "colorTrunks", "colorMotorways"]) {
     assert.match(String(light[key]), /^#[0-9a-f]{6}$/, key);
+  }
+});
+
+test("ramps.json holds every palette of every theme, and its seven classes are the tokens", () => {
+  const ramps = JSON.parse(read("dist/ramps.json"));
+  const tokens = JSON.parse(read("dist/tokens.json"));
+  assert.deepEqual(Object.keys(ramps), THEMES);
+  for (const theme of THEMES) {
+    assert.deepEqual(ramps[theme].cat.colors, [1, 2, 3, 4, 5, 6].map((n) => tokens[theme][`cw-data-cat-${n}`]));
+    assert.equal(ramps[theme].cat.other, tokens[theme]["cw-data-cat-other"]);
+    for (const [kind, names] of Object.entries(RAMPS)) {
+      assert.deepEqual(Object.keys(ramps[theme][kind]), [...names]);
+      for (const name of names) {
+        const ramp = ramps[theme][kind][name];
+        assert.deepEqual(Object.keys(ramp.classes).map(Number), CLASS_COUNTS);
+        for (const n of CLASS_COUNTS) {
+          assert.equal(ramp.classes[n].length, n);
+          for (const colour of ramp.classes[n]) assert.match(colour, /^#[0-9a-f]{6}$/, `${theme} ${name} ${n}`);
+        }
+        const sevens = [1, 2, 3, 4, 5, 6, 7].map((n) => tokens[theme][`cw-data-${kind}-${name}-${n}`]);
+        assert.deepEqual(ramp.classes[7], sevens);
+        assert.deepEqual(ramp.stops.map((/** @type {[number, string]} */ stop) => stop[1]), sevens);
+        assert.equal(ramp.stops[0][0], 0);
+        assert.equal(ramp.stops.at(-1)[0], 1);
+      }
+    }
+  }
+});
+
+test("the dark theme's data ramps differ from the light theme's: the direction follows the basemap", () => {
+  const tokens = JSON.parse(read("dist/tokens.json"));
+  for (const [kind, names] of Object.entries(RAMPS)) {
+    for (const name of names) {
+      assert.notEqual(tokens.dark[`cw-data-${kind}-${name}-1`], tokens.light[`cw-data-${kind}-${name}-1`], `${kind} ${name}`);
+    }
   }
 });
 

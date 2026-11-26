@@ -1139,6 +1139,20 @@
         "unit": "px"
       },
       "$description": "Diameter of a point marker."
+    },
+    "marker-dot": {
+      "$value": {
+        "value": 14,
+        "unit": "px"
+      },
+      "$description": "Diameter of a plain data dot."
+    },
+    "marker-cluster": {
+      "$value": {
+        "value": 36,
+        "unit": "px"
+      },
+      "$description": "Diameter of a cluster marker."
     }
   },
   "stroke": {
@@ -1170,6 +1184,27 @@
         "unit": "px"
       },
       "$description": "Casing under a route line."
+    },
+    "area-outline": {
+      "$value": {
+        "value": 1.5,
+        "unit": "px"
+      },
+      "$description": "Opaque outline of a data polygon, in the polygon's own colour."
+    },
+    "marker-ring": {
+      "$value": {
+        "value": 4,
+        "unit": "px"
+      },
+      "$description": "Ring in the data colour around a marker's disc."
+    },
+    "selection": {
+      "$value": {
+        "value": 3,
+        "unit": "px"
+      },
+      "$description": "Selection outline around the selected feature."
     }
   },
   "font": {
@@ -1292,8 +1327,9 @@
       "$description": "Fill of a data polygon over the basemap; its outline stays opaque."
     }
   },
-  "data": {
+  "ramp": {
     "$type": "color",
+    "$description": "Raw data ramps, in the order they were drawn. Apps use the theme's data.seq and data.div tokens, which point here in the direction that suits the basemap.",
     "seq": {
       "hydro": {
         "1": {
@@ -1373,7 +1409,7 @@
             "hex": "#073654"
           }
         },
-        "$description": "Sequential, single hue. Counts and densities. Light is low."
+        "$description": "Sequential, single hue, light to dark."
       },
       "emrld": {
         "1": {
@@ -1453,7 +1489,7 @@
             "hex": "#074050"
           }
         },
-        "$description": "Sequential, multi-hue (CARTOColors Emrld, CC BY 4.0). Wider perceptual range than a single hue."
+        "$description": "Sequential, multi-hue, light to dark (CARTOColors Emrld, CC BY 4.0)."
       }
     },
     "div": {
@@ -1535,7 +1571,7 @@
             "hex": "#ca562c"
           }
         },
-        "$description": "Diverging (CARTOColors Geyser, CC BY 4.0). Change around a midpoint: below is teal, above is rust."
+        "$description": "Diverging, light midpoint: teal to rust (CARTOColors Geyser, CC BY 4.0)."
       },
       "earth": {
         "1": {
@@ -1615,7 +1651,167 @@
             "hex": "#2887a1"
           }
         },
-        "$description": "Diverging (CARTOColors Earth, CC BY 4.0). Dry to wet, loss to gain."
+        "$description": "Diverging, light midpoint: brown to blue (CARTOColors Earth, CC BY 4.0)."
+      },
+      "geyser-night": {
+        "1": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.3686,
+              0.8275,
+              0.8275
+            ],
+            "hex": "#5ed3d3"
+          }
+        },
+        "2": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.2941,
+              0.6392,
+              0.6118
+            ],
+            "hex": "#4ba39c"
+          }
+        },
+        "3": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.2275,
+              0.4588,
+              0.4157
+            ],
+            "hex": "#3a756a"
+          }
+        },
+        "4": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.2706,
+              0.2627,
+              0.2157
+            ],
+            "hex": "#454337"
+          }
+        },
+        "5": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.5882,
+              0.3373,
+              0.1882
+            ],
+            "hex": "#965630"
+          }
+        },
+        "6": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.8275,
+              0.4588,
+              0.298
+            ],
+            "hex": "#d3754c"
+          }
+        },
+        "7": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              1,
+              0.6392,
+              0.5176
+            ],
+            "hex": "#ffa384"
+          }
+        },
+        "$description": "Diverging, dark midpoint, for dark basemaps: the end hues of Geyser re-lit so the midpoint recedes and the extremes are brightest. Adapted from CARTOColors Geyser (CC BY 4.0)."
+      },
+      "earth-night": {
+        "1": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.949,
+              0.6824,
+              0.3961
+            ],
+            "hex": "#f2ae65"
+          }
+        },
+        "2": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.7333,
+              0.5255,
+              0.2941
+            ],
+            "hex": "#bb864b"
+          }
+        },
+        "3": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.5216,
+              0.3804,
+              0.1922
+            ],
+            "hex": "#856131"
+          }
+        },
+        "4": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.2667,
+              0.2627,
+              0.2157
+            ],
+            "hex": "#444337"
+          }
+        },
+        "5": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.1843,
+              0.4549,
+              0.4941
+            ],
+            "hex": "#2f747e"
+          }
+        },
+        "6": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.2745,
+              0.6275,
+              0.7098
+            ],
+            "hex": "#46a0b5"
+          }
+        },
+        "7": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.3765,
+              0.8078,
+              0.9373
+            ],
+            "hex": "#60ceef"
+          }
+        },
+        "$description": "Diverging, dark midpoint, for dark basemaps: the end hues of Earth re-lit so the midpoint recedes and the extremes are brightest. Adapted from CARTOColors Earth (CC BY 4.0)."
       }
     }
   },

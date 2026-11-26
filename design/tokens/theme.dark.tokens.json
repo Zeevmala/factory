@@ -660,6 +660,106 @@
         "$description": "Other, unknown or no data. Never one of the six."
       }
     },
+    "seq": {
+      "hydro": {
+        "1": {
+          "$value": "{ramp.seq.hydro.7}"
+        },
+        "2": {
+          "$value": "{ramp.seq.hydro.6}"
+        },
+        "3": {
+          "$value": "{ramp.seq.hydro.5}"
+        },
+        "4": {
+          "$value": "{ramp.seq.hydro.4}"
+        },
+        "5": {
+          "$value": "{ramp.seq.hydro.3}"
+        },
+        "6": {
+          "$value": "{ramp.seq.hydro.2}"
+        },
+        "7": {
+          "$value": "{ramp.seq.hydro.1}"
+        },
+        "$description": "Sequential, single hue. Counts and densities. Step 1 is low. Low is dark and high is bright, so low values recede into the dark map."
+      },
+      "emrld": {
+        "1": {
+          "$value": "{ramp.seq.emrld.7}"
+        },
+        "2": {
+          "$value": "{ramp.seq.emrld.6}"
+        },
+        "3": {
+          "$value": "{ramp.seq.emrld.5}"
+        },
+        "4": {
+          "$value": "{ramp.seq.emrld.4}"
+        },
+        "5": {
+          "$value": "{ramp.seq.emrld.3}"
+        },
+        "6": {
+          "$value": "{ramp.seq.emrld.2}"
+        },
+        "7": {
+          "$value": "{ramp.seq.emrld.1}"
+        },
+        "$description": "Sequential, multi-hue (CARTOColors Emrld, CC BY 4.0). Wider perceptual range than a single hue. Step 1 is low. Low is dark and high is bright, so low values recede into the dark map."
+      }
+    },
+    "div": {
+      "geyser": {
+        "1": {
+          "$value": "{ramp.div.geyser-night.1}"
+        },
+        "2": {
+          "$value": "{ramp.div.geyser-night.2}"
+        },
+        "3": {
+          "$value": "{ramp.div.geyser-night.3}"
+        },
+        "4": {
+          "$value": "{ramp.div.geyser-night.4}"
+        },
+        "5": {
+          "$value": "{ramp.div.geyser-night.5}"
+        },
+        "6": {
+          "$value": "{ramp.div.geyser-night.6}"
+        },
+        "7": {
+          "$value": "{ramp.div.geyser-night.7}"
+        },
+        "$description": "Diverging (after CARTOColors Geyser, CC BY 4.0). Change around a midpoint: below is teal, above is rust. Step 4 is the midpoint. The midpoint is the darkest step and recedes; both extremes are bright."
+      },
+      "earth": {
+        "1": {
+          "$value": "{ramp.div.earth-night.1}"
+        },
+        "2": {
+          "$value": "{ramp.div.earth-night.2}"
+        },
+        "3": {
+          "$value": "{ramp.div.earth-night.3}"
+        },
+        "4": {
+          "$value": "{ramp.div.earth-night.4}"
+        },
+        "5": {
+          "$value": "{ramp.div.earth-night.5}"
+        },
+        "6": {
+          "$value": "{ramp.div.earth-night.6}"
+        },
+        "7": {
+          "$value": "{ramp.div.earth-night.7}"
+        },
+        "$description": "Diverging (after CARTOColors Earth, CC BY 4.0). Dry to wet, loss to gain: below is brown, above is blue. Step 4 is the midpoint. The midpoint is the darkest step and recedes; both extremes are bright."
+      }
+    },
     "casing": {
       "$value": {
         "colorSpace": "srgb",

@@ -224,7 +224,7 @@
   inline-size: var(--cw-size-marker);
   block-size: var(--cw-size-marker);
   padding: 0;
-  border: 4px solid var(--cw-marker-color);
+  border: var(--cw-stroke-marker-ring) solid var(--cw-marker-color);
   border-radius: var(--cw-radius-pill);
   background: var(--cw-data-casing);
   box-shadow: 0 0 0 var(--cw-stroke-casing) var(--cw-data-casing), var(--cw-shadow-1);
@@ -235,21 +235,21 @@
 }
 
 .cw-marker--dot {
-  inline-size: 14px;
-  block-size: 14px;
+  inline-size: var(--cw-size-marker-dot);
+  block-size: var(--cw-size-marker-dot);
   border: 0;
   background: var(--cw-marker-color);
 }
 
 .cw-marker--cluster {
-  inline-size: 36px;
-  block-size: 36px;
+  inline-size: var(--cw-size-marker-cluster);
+  block-size: var(--cw-size-marker-cluster);
   font-family: var(--cw-font-mono, var(--font-mono));
   font-variant-numeric: tabular-nums;
 }
 
 .cw-marker--selected {
-  box-shadow: 0 0 0 var(--cw-stroke-casing) var(--cw-data-casing), 0 0 0 5px var(--cw-data-selection), var(--cw-shadow-2);
+  box-shadow: 0 0 0 var(--cw-stroke-casing) var(--cw-data-casing), 0 0 0 calc(var(--cw-stroke-casing) + var(--cw-stroke-selection)) var(--cw-data-selection), var(--cw-shadow-2);
 }
 
 /* ---------------------------------------------------------------- legend */
@@ -304,6 +304,13 @@
   border-radius: var(--cw-radius-sm);
   background: var(--cw-swatch, var(--cw-data-cat-other));
   box-shadow: 0 0 0 var(--cw-stroke-hairline) var(--cw-data-casing);
+}
+
+/* No data: hollow and dashed, a different form and not just a different colour. */
+.cw-legend__swatch--missing {
+  border: var(--cw-stroke-area-outline) dashed var(--cw-data-cat-other);
+  background: transparent;
+  box-shadow: none;
 }
 
 .cw-legend__ramp {

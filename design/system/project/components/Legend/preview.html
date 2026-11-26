@@ -30,11 +30,11 @@
   [[176, 132, 44, 30, 1], [176, 176, 44, 36, 1], [232, 132, 40, 30, 2], [232, 176, 40, 36, 2], [176, 228, 44, 40, 1], [232, 228, 40, 40, 4], [404, 196, 50, 34, 4], [404, 244, 50, 36, 2], [300, 232, 60, 44, 1]].forEach(function (b) {
     var r = document.createElementNS(ns, "rect");
     r.setAttribute("x", b[0]); r.setAttribute("y", b[1]); r.setAttribute("width", b[2]); r.setAttribute("height", b[3]); r.setAttribute("rx", 2);
-    r.style.cssText = "fill: var(--cw-data-cat-" + b[4] + "); fill-opacity: var(--cw-opacity-fill-area); stroke: var(--cw-data-cat-" + b[4] + "); stroke-width: 1.5";
+    r.style.cssText = "fill: var(--cw-data-cat-" + b[4] + "); fill-opacity: var(--cw-opacity-fill-area); stroke: var(--cw-data-cat-" + b[4] + "); stroke-width: var(--cw-stroke-area-outline)";
     svg.appendChild(r);
   });
   var park = document.createElementNS(ns, "path");
   park.setAttribute("d", "M300 150 C330 138 372 144 392 168 C404 190 384 214 350 214 C318 214 292 196 292 174 C292 164 294 156 300 150 Z");
-  park.style.cssText = "fill: var(--cw-data-cat-3); fill-opacity: var(--cw-opacity-fill-area); stroke: var(--cw-data-cat-3); stroke-width: 1.5";
+  park.style.cssText = "fill: var(--cw-data-cat-3); fill-opacity: var(--cw-opacity-fill-area); stroke: var(--cw-data-cat-3); stroke-width: var(--cw-stroke-area-outline)";
   svg.appendChild(park);
 </script>
