@@ -1,5 +1,7 @@
 # Third-party material
 
+Cartowolf itself is MIT licensed, see [`../LICENSE`](../LICENSE). The material below keeps its own licence.
+
 | What | Where | Licence |
 | --- | --- | --- |
 | IBM Plex Sans, Sans Hebrew, Sans Condensed, Mono (font files from Fontsource 5.3.0) | `system/project/fonts/` | SIL Open Font License 1.1, see `licenses/IBM-Plex-OFL-1.1.txt` |

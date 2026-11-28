@@ -148,6 +148,10 @@ Known behaviour: scheduled runs come only from the default branch, and GitHub pa
 
 Edit this repository, then run `./Deploy-Factory.ps1` again. It pushes `main` and fast-forwards the `v1` branch, and every connected project uses the new version on its next run. `v1` is a branch, not a tag, so a release is an ordinary push; protect it in the repo's branch settings if anyone else gets write access. Third-party pieces are pinned in `build.yml` by commit or checksum; read the upstream diff before moving a pin.
 
+## Licence
+
+MIT, see [`LICENSE`](LICENSE). The design system bundles third-party material under its own terms: IBM Plex (SIL OFL 1.1) and the CARTOColors ramps (CC BY 4.0, credit CARTO where a map using them is published). [`design/NOTICE.md`](design/NOTICE.md) lists each one.
+
 ## Where the parts come from
 
 | Part | Source |

@@ -2,6 +2,7 @@
   "name": "cartowolf",
   "version": "0.2.0",
   "private": true,
+  "license": "MIT",
   "description": "Design system for map applications: interface tokens, basemap flavors and data colour, checked for contrast and colour-blind readers.",
   "type": "module",
   "engines": {

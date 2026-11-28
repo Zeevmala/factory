@@ -107,4 +107,4 @@ The contrast checks are WCAG 2 ratios. They show that a pair is legible, not tha
 - Hillshade and raster styling beyond the continuous stops in `ramps.json`.
 - A Tailwind preset. Reference the custom properties from the app's Tailwind config.
 - Screenshots in the factory's pull requests, which is how a reviewer would see a map.
-- A published package. `package.json` is marked private until the repository has a licence.
+- A published package. `package.json` stays marked private until the first release, so nothing is published by accident.
